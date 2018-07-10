@@ -1,16 +1,34 @@
 {
-  "addons": [
-
-  ],
-  "buildpacks": [
-
-  ],
+  "name": "Ah-backend-guardians",
+  "scripts": {},
   "env": {
+      "DB_HOST": {
+          "required": true
+      },
+      "DB_NAME": {
+          "required": true
+      },
+      "DB_PASS": {
+          "required": true
+      },
+      "DB_USER": {
+          "required": true
+      },
+      "DB_PORT": {
+          "required": true
+      },
+      "ALLOWED_HOSTS": {
+          "required": true
+      },
+      "DB": {
+          "required": true
+      }
   },
-  "formation": {
-  },
-  "name": "ah-backend-invictus",
-  "scripts": {
-  },
-  "stack": "heroku-18"
+  "formation": {},
+  "addons": [
+      "heroku-postgresql"
+  ],
+  "stack": "heroku-18",
+  "buildpacks": []
+
 }
