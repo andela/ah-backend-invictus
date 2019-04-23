@@ -16,4 +16,7 @@ before_script:
 script:
   - python manage.py makemigrations
   - python manage.py migrate
-  - python manage.py test
+  - coverage run --source='authors/apps' manage.py test && coverage report
+
+after_succes:
+  - coveralls
