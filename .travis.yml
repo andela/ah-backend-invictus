@@ -1,0 +1,19 @@
+language: python
+python:
+  - "3.6"
+
+services:
+  - postgresql
+
+install:
+  - pip install -r requirements.txt
+
+before_script:
+  - psql -c 'create database author_ah;' -U postgres
+  - psql -c "CREATE USER author;" -U postgres
+  - psql -c "ALTER USER author CREATEDB;"
+
+script:
+  - python manage.py makemigrations
+  - python manage.py migrate
+  - python manage.py test
