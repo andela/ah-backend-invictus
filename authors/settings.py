@@ -24,9 +24,14 @@ SECRET_KEY = '7pgozr2jn7zs_o%i8id6=rddie!*0f0qy3$oy$(8231i^4*@u3'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+                    'inviticus-review-pr-4.herokuapp.com',
+                    'inviticus-staging.herokuapp.com',
+                    'inviticus.herokuapp.com/'
+                ]
 
 # Application definition
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -80,9 +85,13 @@ WSGI_APPLICATION = 'authors.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME", "author_ah"),
+        "USER": os.environ.get("DB_USER", "author"),
+        "PASSWORD": os.environ.get("DB_PASS", ""),
+        "HOST": os.environ.get("DB_HOST", "localhost"),
+        "PORT": os.environ.get("DB_PORT", "5432"),
     }
 }
 
@@ -137,3 +146,12 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'authors.apps.core.exceptions.core_exception_handler',
     'NON_FIELD_ERRORS_KEY': 'error',
 }
+
+#heroku deploy settings
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(PROJECT_ROOT, "staticfiles")
+
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = (os.path.join(PROJECT_ROOT, "static"),)
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
