@@ -1,16 +1,27 @@
 {
   "addons": [
-
+    "heroku-postgresql:hobby-basic",
+    "heroku-redis:hobby-dev",
+    "memcachier:dev"
   ],
   "buildpacks": [
-
+    "heroku-postgresql:hobby-basic",
+    "heroku-redis:hobby-dev"
   ],
   "env": {
+    "OK_TO_SEED": "true",
+    "AWS_ACCESS_KEY_ID": {
+      "required": true
+    },
+    "AWS_SECRET_ACCESS_KEY": {
+      "required": true
+    }
   },
   "formation": {
   },
   "name": "ah-backend-invictus",
   "scripts": {
+    "postdeploy": "OK_TO_SEED=true bundle exec rails db:schema:load db:seed"
   },
   "stack": "heroku-18"
 }
