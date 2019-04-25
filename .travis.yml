@@ -18,5 +18,5 @@ script:
   - python manage.py migrate
   - coverage run --source='authors/apps' manage.py test && coverage report
 
-after_succes:
+after_success:
   - coveralls
