@@ -1,21 +1,12 @@
 {
   "addons": [
-    "heroku-postgresql:hobby-basic",
-    "heroku-redis:hobby-dev",
-    "memcachier:dev"
+    "heroku-postgresql:hobby-basic"
   ],
   "buildpacks": [
-    "heroku-postgresql:hobby-basic",
-    "heroku-redis:hobby-dev"
+    "heroku-postgresql:hobby-basic"
   ],
   "env": {
-    "OK_TO_SEED": "true",
-    "AWS_ACCESS_KEY_ID": {
-      "required": true
-    },
-    "AWS_SECRET_ACCESS_KEY": {
-      "required": true
-    }
+    "OK_TO_SEED": "true"
   },
   "formation": {
   },
