@@ -144,3 +144,66 @@ class UserManagerTestCase(APITestCase):
                                  kwargs=kwargs)
         response = self.client.get(activation_url, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_signup(self):
+        """test succesfull signup"""
+        url = reverse('authentication:user_signup')
+        response = self.client.post(url, self.user_test_data.user_registration, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_register_invalid_username(self):
+        """test fail when username is invalid"""
+        url = reverse('authentication:user_signup')
+        response = self.client.post(url, self.user_test_data.invalid_username, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['errors']['username'][0], 'username should be longer than 4 characters')
+    
+    def test_register_username_with_spaces(self):
+        """test fail when username has spaces is invalid"""
+        url = reverse('authentication:user_signup')
+        response = self.client.post(url, self.user_test_data.username_with_space, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['errors']['username']
+                         [0], 'username should not contain spaces')
+
+    def test_register_invalid_password(self):
+        """test fail when password is invalid"""
+        url = reverse('authentication:user_signup')
+        response = self.client.post(url, self.user_test_data.invalid_password, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['errors']['password']
+                         [0], 'Password should atleast be 8 characters.')
+
+    def test_register_non_alphanumeric_password(self):
+        """test fail when password is not alphanumeric"""
+        url = reverse('authentication:user_signup')
+        response = self.client.post(url, self.user_test_data.non_numeric_password, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['errors']['password'][0],
+                         'Password should include numbers and alphabets and one special character')
+
+    def test_register_password_with_whitespace(self):
+        """test fail when password has spaces"""
+        url = reverse('authentication:user_signup')
+        response = self.client.post(url, self.user_test_data.password_with_space, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['errors']['password'][0],
+                         'Password should not include white spaces')
+    
+    def test_user_exists(self):
+        """Test register with email that exists """
+        url = reverse('authentication:user_signup')
+        response = self.client.post(url, self.user_test_data.user_registration, format="json")
+        response = self.client.post(url, self.user_test_data.user_registration ,format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_username_with_no_characters(self):
+        """Test username with no characters """
+        url = reverse('authentication:user_signup')
+        response = self.client.post(url, self.user_test_data.username_with_no_characters, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['errors']['username'][0],
+                         'username should contain characters')
+
+    
+
