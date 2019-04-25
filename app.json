@@ -16,6 +16,9 @@
       },
       "DB_PORT": {
           "required": true
+      },
+      "DISABLE_COLLECTSTATIC": {
+        "required": true
       }
   },
   "formation": {},
@@ -24,5 +27,4 @@
   ],
   "stack": "heroku-18",
   "buildpacks": []
-
 }
