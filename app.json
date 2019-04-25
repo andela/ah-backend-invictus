@@ -2,9 +2,9 @@
   "addons": [
     "heroku-postgresql:hobby-basic"
   ],
-  "buildpacks": [
-    "heroku-postgresql:hobby-basic"
-  ],
+  "buildpacks": {
+    "url":"nviticus-review"
+},
   "env": {
     "OK_TO_SEED": "true"
   },
