@@ -19,6 +19,9 @@
       },
       "ALLOWED_HOSTS": {
         "required": true
+      },
+      "DISABLE_COLLECTSTATIC": {
+        "required": true
       }
   },
   "formation": {},
