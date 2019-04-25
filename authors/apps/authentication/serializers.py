@@ -35,7 +35,6 @@ class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=255, read_only=True)
     password = serializers.CharField(max_length=128, write_only=True)
 
-
     def validate(self, data):
         # The `validate` method is where we make sure that the current
         # instance of `LoginSerializer` has "valid". In the case of logging a
@@ -81,6 +80,14 @@ class LoginSerializer(serializers.Serializer):
                 'This user has been deactivated.'
             )
 
+        # The user not verified flag tells us whether the user accoount is
+        # activated after registeration or not. Users should only be able
+        # login only if their accounts are activated.
+        if not user.email_verified:
+            raise serializers.ValidationError(
+                'Account not yet activated. Check email for activation link.'
+            )
+
         # The `validate` method should return a dictionary of validated data.
         # This is the data that is passed to the `create` and `update` methods
         # that we will see later on.
@@ -112,10 +119,9 @@ class UserSerializer(serializers.ModelSerializer):
         # specifying the field with `read_only=True` like we did for password
         # above. The reason we want to use `read_only_fields` here is because
         # we don't need to specify anything else about the field. For the
-        # password field, we needed to specify the `min_length` and 
+        # password field, we needed to specify the `min_length` and
         # `max_length` properties too, but that isn't the case for the token
         # field.
-
 
     def update(self, instance, validated_data):
         """Performs an update on a User."""
