@@ -39,7 +39,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
         except BaseException:
             message = "The token provided can not be decoded."
             raise exceptions.AuthenticationFailed(message)
-        user = User.objects.get(username=payload['sub'])
+        user = User.objects.get(email=payload['sub']['email'])
         if not user:
             message = "User does not exist in the database."
             raise exceptions.AuthenticationFailed(message)
