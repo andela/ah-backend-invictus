@@ -17,7 +17,7 @@
       "DB_PORT": {
           "required": true
       },
-      "DISABLE_COLLECTSTATIC": {
+      "ALLOWED_HOSTS": {
         "required": true
       }
   },
