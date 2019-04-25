@@ -3,7 +3,7 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from authors.apps.authentication.models import User
 from .renderers import UserJSONRenderer
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer
@@ -13,6 +13,7 @@ from .serializers import (
 class RegistrationAPIView(APIView):
     # Allow any user (authenticated or not) to hit this endpoint.
     permission_classes = (AllowAny,)
+    authentication_classes = ()
     renderer_classes = (UserJSONRenderer,)
     serializer_class = RegistrationSerializer
 
@@ -25,12 +26,19 @@ class RegistrationAPIView(APIView):
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        token = User.encode_auth_token(user).decode('utf-8')
+        response_data = {
+            'username':user['username'],
+            'email':user['email'],
+            'token':token
+        }
+        return Response(response_data,
+                        status=status.HTTP_201_CREATED)
 
 
 class LoginAPIView(APIView):
     permission_classes = (AllowAny,)
+    authentication_classes = ()
     renderer_classes = (UserJSONRenderer,)
     serializer_class = LoginSerializer
 
@@ -43,8 +51,16 @@ class LoginAPIView(APIView):
         # handles everything we need.
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        token = User.encode_auth_token(user).decode('utf-8')
+        user = User()
+        response_data = {
+            'username': user.get_full_name,
+            'token': token
+        }
+        response_data.update(serializer.data)
+        return Response(
+            response_data, status=status.HTTP_200_OK
+        )
 
 
 class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
@@ -72,4 +88,3 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-
