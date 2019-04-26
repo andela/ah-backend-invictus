@@ -117,14 +117,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.username
 
     @staticmethod
-    def encode_auth_token(username):
+    def encode_auth_token(email):
         """Generates auth token."""
         try:
             payload = {
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(
-                    days=2, seconds=20000),
+                    seconds=900),
                 'iat': datetime.datetime.utcnow(),
-                'sub': username
+                'sub': email
             }
             return jwt.encode(
                 payload, settings.SECRET_KEY, algorithm='HS256'
