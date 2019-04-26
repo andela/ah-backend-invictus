@@ -1,6 +1,5 @@
 import jwt
-
-from datetime import datetime, timedelta
+import datetime
 
 from django.conf import settings
 from django.contrib.auth.models import (
@@ -12,7 +11,7 @@ class UserManager(BaseUserManager):
     """
     Django requires that custom users define their own Manager class. By
     inheriting from `BaseUserManager`, we get a lot of the same code used by
-    Django to create a `User` for free. 
+    Django to create a `User` for free.
 
     All we have to do is override the `create_user` function which we will use
     to create `User` objects.
@@ -117,4 +116,18 @@ class User(AbstractBaseUser, PermissionsMixin):
         """
         return self.username
 
-
+    @staticmethod
+    def encode_auth_token(username):
+        """Generates auth token."""
+        try:
+            payload = {
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(
+                    days=2, seconds=20000),
+                'iat': datetime.datetime.utcnow(),
+                'sub': username
+            }
+            return jwt.encode(
+                payload, settings.SECRET_KEY, algorithm='HS256'
+            )
+        except Exception as e:
+            return e
