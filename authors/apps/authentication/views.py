@@ -1,9 +1,17 @@
+from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+
 from rest_framework import status
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from authors.apps.authentication.models import User
+from rest_framework import exceptions
+
+from .models import User
 from .renderers import UserJSONRenderer
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer
@@ -26,14 +34,29 @@ class RegistrationAPIView(APIView):
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        token = User.encode_auth_token(user).decode('utf-8')
+
+        # Create a unique identifier
+        uid = urlsafe_base64_encode(
+            force_bytes(user['username'])).decode('utf-8')
+        current_site = get_current_site(request)
+
+        activation_link = '{}/api/users/{}/'.format(current_site, uid)
+
+        subject = 'Activate your account'
+        message = 'Click the link below to activate your account.\n{}'.format(
+            activation_link)
+        from_email = settings.EMAIL_HOST_USER
+        to_email = user['email']
+        send_mail(subject, message, from_email, [to_email],
+                  fail_silently=False)
+
         response_data = {
-            'username':user['username'],
-            'email':user['email'],
-            'token':token
+            'username': user['username'],
+            'email': user['email'],
+            'message': 'Check your email address to confirm registration.'
         }
-        return Response(response_data,
-                        status=status.HTTP_201_CREATED)
+
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
 
 class LoginAPIView(APIView):
@@ -88,3 +111,32 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AccountActivationAPIView(APIView):
+    """
+    Return the registration activation link.
+    """
+    permission_classes = (AllowAny, )
+    authentication_classes = ()
+    serializer_class = UserSerializer
+
+    def get(self, request, uid):
+        try:
+            username = urlsafe_base64_decode(uid).decode('utf-8')
+            user = User.objects.filter(username=username).first()
+        except User.DoesNotExist:
+            message = "User not found."
+            return exceptions.AuthenticationFailed(message)
+        if user is not None and not user.email_verified:
+            user.email_verified = True
+            user.save()
+            token = User.encode_auth_token(user.username).decode('utf-8')
+            response = {
+                "message": "Account successfully activated. Login now.",
+                "token": token
+            }
+            return Response(response, status=status.HTTP_200_OK)
+        return Response({
+            "error": "Activation link is invalid.",
+        }, status=status.HTTP_400_BAD_REQUEST)

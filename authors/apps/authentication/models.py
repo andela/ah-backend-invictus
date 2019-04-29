@@ -7,6 +7,7 @@ from django.contrib.auth.models import (
 )
 from django.db import models
 
+
 class UserManager(BaseUserManager):
     """
     Django requires that custom users define their own Manager class. By
@@ -32,21 +33,20 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, username, email, password):
-      """
-      Create and return a `User` with superuser powers.
+        """
+        Create and return a `User` with superuser powers.
+        Superuser powers means that this use is an admin that can do anything
+        they want.
+        """
+        if password is None:
+            raise TypeError('Superusers must have a password.')
 
-      Superuser powers means that this use is an admin that can do anything
-      they want.
-      """
-      if password is None:
-          raise TypeError('Superusers must have a password.')
+        user = self.create_user(username, email, password)
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
 
-      user = self.create_user(username, email, password)
-      user.is_superuser = True
-      user.is_staff = True
-      user.save()
-
-      return user
+        return user
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -80,6 +80,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     # A timestamp reprensenting when this object was last updated.
     updated_at = models.DateTimeField(auto_now=True)
 
+    # The `email_verified` flag represents whether the registered user has a
+    # verified account.
+    # The user verifys their account through a link sent to their email.
+    email_verified = models.BooleanField(default=False)
+
     # More fields required by Django when specifying a custom user model.
 
     # The `USERNAME_FIELD` property tells us which field we will use to log in.
@@ -94,19 +99,18 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         """
         Returns a string representation of this `User`.
-
         This string is used when a `User` is printed in the console.
         """
         return self.email
 
     @property
     def get_full_name(self):
-      """
-      This method is required by Django for things like handling emails.
-      Typically, this would be the user's first and last name. Since we do
-      not store the user's real name, we return their username instead.
-      """
-      return self.username
+        """
+        This method is required by Django for things like handling emails.
+        Typically, this would be the user's first and last name. Since we do
+        not store the user's real name, we return their username instead.
+        """
+        return self.username
 
     def get_short_name(self):
         """

@@ -157,7 +157,8 @@ REST_FRAMEWORK = {
     )
 }
 
-#heroku deploy settings
+# Heroku deploy settings
+
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(PROJECT_ROOT, "staticfiles")
 
@@ -165,3 +166,12 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, "staticfiles")
 STATICFILES_DIRS = (os.path.join(PROJECT_ROOT, "static"),)
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# Email settings
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = True

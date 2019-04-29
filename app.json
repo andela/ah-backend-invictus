@@ -22,6 +22,18 @@
       },
       "DB": {
           "required": true
+      },
+      "EMAIL_HOST": {
+          "required": true
+      },
+      "EMAIL_HOST_USER": {
+          "required": true
+      },
+      "EMAIL_HOST_PASSWORD": {
+          "required": true
+      },
+      "EMAIL_PORT": {
+          "required": true
       }
   },
   "formation": {},
