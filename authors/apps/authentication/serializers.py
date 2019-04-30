@@ -1,8 +1,7 @@
 from django.contrib.auth import authenticate
-
 from rest_framework import serializers
-
 from .models import User
+import re
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -10,11 +9,65 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     # Ensure passwords are at least 8 characters long, no longer than 128
     # characters, and can not be read by the client.
-    password = serializers.CharField(
-        max_length=128,
-        min_length=8,
-        write_only=True
+    # ensures that password is required and not blank
+    #username should not contain trailing and leading white spaces
+    email = serializers.EmailField()
+    username = serializers.CharField(
+        trim_whitespace = True 
     )
+    password = serializers.CharField(
+        max_length=16,
+        write_only=True,
+        required=True,
+        error_messages={
+            "required": "Password field is required",
+            "blank": "Password field cannot be empty",
+        }
+    )
+
+    def validate_password(self, password):
+        """
+            validates that  password is longer than 8 characters
+            password is alphanumeric
+        """
+        if len(password) < 8:
+            raise serializers.ValidationError(
+                "Password should atleast be 8 characters.")
+        if not re.search(r'[0-9]', password) or not re.search(r'[a-zA-Z]', password) or not re.search(r'[!?@#$%^&*.]', password):
+            raise serializers.ValidationError(
+                "Password should include numbers and alphabets and one special character")
+        if re.search(r'[\s]', password):
+            raise serializers.ValidationError(
+                "Password should not include white spaces")
+        return password
+
+
+    def validate_username(self, username):
+        """ validates username"""  
+        exist_username = User.objects.filter(username=username)
+        if exist_username.exists():
+            raise serializers.ValidationError(
+                "username provided already exists")
+        if len(username) <= 4:
+            raise serializers.ValidationError(
+                "username should be longer than 4 characters")
+        if re.search(r'[\s]', username):
+            raise serializers.ValidationError(
+                "username should not contain spaces")
+        if not re.search(r'[a-zA-Z]', username):
+            raise serializers.ValidationError(
+                "username should contain characters")
+        return username
+
+    def validate_email(self, email):
+        """ validates email"""
+
+        exist_email = User.objects.filter(email=email)
+        if exist_email.exists():
+            raise serializers.ValidationError(
+                "email provided already exists")
+        return email
+
 
     # The client should not be able to send a token along with a registration
     # request. Making `token` read-only handles that for us.
@@ -101,7 +154,7 @@ class LoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     """Handles serialization and deserialization of User objects."""
 
-    # Passwords must be at least 8 characters, but no more than 128 
+    # Passwords must be at least 8 characters, but no more than 128
     # characters. These values are the default provided by Django. We could
     # change them, but that would create extra work while introducing no real
     # benefit, so let's just stick with the defaults.
