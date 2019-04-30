@@ -1,0 +1,23 @@
+[
+    {
+        "model": "authentication.user",
+        "pk": 1,
+        "fields": {
+            "username": "sanya",
+            "email": "sanyakenneth@gmail.com",
+            "email_verified": true,
+            "password": "pbkdf2_sha256$120000$RLkaJYAyp0Dq$+2V+D1qXP5P1UuEjLxaRAorMiw2khCxKevg+/YrCAyI=",
+            "created_at": "2013-03-23 00:03:00",
+            "updated_at": "2013-03-23 01:02:00"
+        }
+    },
+    {
+        "model": "authentication.resetPasswordToken",
+        "pk": 1,
+        "fields": {
+            "user": 1,
+            "token": "mytokengoeshere",
+            "email": "sanyakenneth@gmail.com"
+        }
+    }
+]

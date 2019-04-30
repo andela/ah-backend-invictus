@@ -1,7 +1,8 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from .models import User
 import re
+
+from .models import User, ResetPasswordToken
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -199,6 +200,71 @@ class UserSerializer(serializers.ModelSerializer):
         # Finally, after everything has been updated, we must explicitly save
         # the model. It's worth pointing out that `.set_password()` does not
         # save the model.
+        instance.save()
+
+        return instance
+
+class ResetPasswordTokenSerializer(serializers.ModelSerializer):
+    """Handles serialization and deserialization of ResetPasswordToken class objects."""
+    email = serializers.EmailField()
+
+    class Meta:
+        model = ResetPasswordToken
+        fields = ["email", ]
+
+    def validate(self, data):
+        #Validate the email
+        email = data.get('email', None)
+        if email is None:
+            raise serializers.ValidationError(
+                'An email address is required to reset password'
+            )
+        
+        #check that user exists and is active
+        user = User.objects.filter(email=email).distinct()
+        if not user.exists() or not user.first().is_active:
+            raise serializers.ValidationError(
+                "No active account with provided email."
+            )
+        
+        return data
+
+class ResetPasswordSerializer(serializers.ModelSerializer):
+    """serialization of user data."""
+
+    password = serializers.CharField(
+        max_length=128,
+        min_length=8,
+        write_only=True
+    )
+
+    confirm_password = serializers.CharField(
+        max_length=128,
+        min_length=8,
+        write_only=True
+    )
+
+    class Meta:
+        model = User
+        fields = ('password', 'confirm_password')
+
+    def update(self, instance, validated_data):
+        """update the User password."""
+
+        password = validated_data.pop('password', None)
+        confirm_password = validated_data.pop('confirm_password', None)
+
+        for (key, value) in validated_data.items():
+            if key != 'confirm_password':
+                setattr(instance, key, value)
+
+        if password is not None and password == confirm_password:
+            instance.set_password(password)
+        else:
+            raise serializers.ValidationError(
+                "Passwords do not match!"
+            )
+
         instance.save()
 
         return instance
