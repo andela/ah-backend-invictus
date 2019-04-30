@@ -14,8 +14,7 @@ class BaseTestCase(APITestCase):
         # Initialize the Testclient for the tests
         self.client = APIClient()
 
-
-        self.login_url = reverse('authentication:user_login')
+        self.login_url = reverse('user_login')
 
         self.user = User.objects.create_user(
             username="test1", email="test1@gmail.com", password="password")

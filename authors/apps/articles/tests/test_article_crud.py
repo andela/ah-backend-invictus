@@ -1,8 +1,6 @@
 # Django and Rest framework imports
 from django.urls import reverse
 from rest_framework import status
-
-
 # Local imports
 from authors.apps.articles.models import Article
 from .base import BaseTestCase
@@ -178,7 +176,8 @@ class ArticleCrudTest(BaseTestCase):
             url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
         article_id = response.data['id']
         url = '/api/articles/{}/'.format(article_id)
-        response = self.client.delete(url, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        response = self.client.delete(
+            url, HTTP_AUTHORIZATION=self.auth_header, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_delete_article_not_found(self):
@@ -189,5 +188,6 @@ class ArticleCrudTest(BaseTestCase):
         response = self.client.post(
             url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
         url = '/api/articles/1000/'
-        response = self.client.delete(url, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        response = self.client.delete(
+            url, HTTP_AUTHORIZATION=self.auth_header, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
