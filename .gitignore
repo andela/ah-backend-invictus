@@ -99,5 +99,6 @@ db.sqlite3
 
 #the coverage file
 .coveragerc
+.DS_Store
 
 htmlcov/*
