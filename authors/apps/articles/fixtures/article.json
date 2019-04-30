@@ -1,0 +1,17 @@
+[
+{
+    "model": "articles.article",
+    "pk": 1,
+    "fields": {
+        "slug" : "this-is-andela-ftub",
+        "title": "this is andela",
+        "description": "The best tech startapp operating",
+        "body": "The tech startapp harder to get into than Harvard",
+        "created_at": "2019-04-29T14:13:25.526681Z",
+        "updated_at": "2019-04-29T14:13:25.526692Z",
+        "favorited": false,
+        "favorite_count": 0,
+        "author_id": "jeanmarcus" 
+    } 
+}
+]

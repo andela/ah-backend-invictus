@@ -1,0 +1,25 @@
+[
+    {
+        "model": "authentication.user",
+        "pk": 1,
+        "fields": {
+            "username": "jeanmarcus",
+            "email": "jean@gmail.com",
+            "email_verified": true,
+            "password": "pbkdf2_sha256$120000$RLkaJYAyp0Dq$+2V+D1qXP5P1UuEjLxaRAorMiw2khCxKevg+/YrCAyI=",
+            "created_at": "2019-04-29T14:13:25.526681Z",
+            "updated_at": "2019-04-29T14:13:25.526692Z"
+        }
+    },
+    {
+        "model": "authentication.user",
+        "pk": 2,
+        "fields": {
+            "username": "jean",
+            "email": "jean2@gmail.com",
+            "password": "pbkdf2_sha256$120000$RLkaJYAyp0Dq$+2V+D1qXP5P1UuEjLxaRAorMiw2khCxKevg+/YrCAyI=",
+            "created_at": "2019-04-29T14:13:25.526681Z",
+            "updated_at": "2019-04-29T14:13:25.526692Z"
+        }
+    }
+]

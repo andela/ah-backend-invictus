@@ -131,7 +131,11 @@ class AccountActivationAPIView(APIView):
         if user is not None and not user.email_verified:
             user.email_verified = True
             user.save()
-            token = User.encode_auth_token(user.username).decode('utf-8')
+            data = {
+                "username": user.username,
+                "email": user.email
+            }
+            token = User.encode_auth_token(data).decode('utf-8')
             response = {
                 "message": "Account successfully activated. Login now.",
                 "token": token
