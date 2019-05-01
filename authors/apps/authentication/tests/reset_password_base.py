@@ -19,3 +19,13 @@ class BaseTestCase(APITestCase):
                 "password": "abc?54321",
                 "confirm_password": "abc?54321"
             }
+
+        self.reset_invalid_new_passwords_data = {
+                "password": "987654321",
+                "confirm_password": "987654321"
+            }
+
+        self.reset_same_password_data = {
+                "password": "?ad87654321",
+                "confirm_password": "?ad87654321"
+            }

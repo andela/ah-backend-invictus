@@ -3,6 +3,7 @@ from rest_framework import serializers
 import re
 
 from .models import User, ResetPasswordToken
+from django.contrib.auth.hashers import check_password
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -244,6 +245,23 @@ class ResetPasswordSerializer(serializers.ModelSerializer):
         write_only=True
     )
 
+    def validate_password(self, password):
+        """
+            validates that  password is longer than 8 characters
+            password is alphanumeric
+        """
+        if len(password) < 8:
+            raise serializers.ValidationError(
+                "Password should atleast be 8 characters.")
+        if not re.search(r'[0-9]', password) or not re.search(r'[a-zA-Z]',
+                password) or not re.search(r'[!?@#$%^&*.]', password):
+            raise serializers.ValidationError(
+                "Password should include numbers and alphabets and one special character")
+        if re.search(r'[\s]', password):
+            raise serializers.ValidationError(
+                "Password should not include white spaces")
+        return password
+
     class Meta:
         model = User
         fields = ('password', 'confirm_password')
@@ -258,11 +276,18 @@ class ResetPasswordSerializer(serializers.ModelSerializer):
             if key != 'confirm_password':
                 setattr(instance, key, value)
 
+        old_password = instance.password
+
         if password is not None and password == confirm_password:
             instance.set_password(password)
         else:
             raise serializers.ValidationError(
                 "Passwords do not match!"
+            )
+
+        if check_password(password, old_password):
+            raise serializers.ValidationError(
+                "New password should be different from previous password."
             )
 
         instance.save()
