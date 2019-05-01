@@ -1,11 +1,16 @@
+from django.utils import timezone
+
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.exceptions import NotFound
+
 from authors.apps.article_tags.views import ArticleTagView
 from authors.apps.article_tags.models import ArticleTag
 from .renderer import ArticleJSONRenderer
-from .models import Article
+from .models import Article, Like_Dislike
 from .serializers import ArticleSerializer
 from .permissions import IsOwnerOrReadOnly
 from .pagination import ArticlePageNumberPagination
@@ -92,3 +97,132 @@ class RetrieveUpdateDestroyArticle(generics.RetrieveUpdateDestroyAPIView):
                 return Response("You have succesfully deleted the article")
             return Response("You do not have permision to delete the article")
         return Response(self.err_message, status=status.HTTP_404_NOT_FOUND)
+
+
+class Like(APIView):
+    """
+    POST articles/:id/like/ to like an article
+    GET articles/:id/ and view likes_count
+    """
+    permission_classes = (IsAuthenticated, )
+
+    def get_article(self, article_id):
+        """ Method to search for an article object by its id"""
+        try:
+            return Article.objects.get(id=article_id)
+        except Article.DoesNotExist:
+            raise NotFound({"error": "Article does not exist"})
+
+    def post(self, request, **kwargs):
+        """ Method to like an article and if endpoint hit twice
+            by same user for that article revoke like
+        """
+
+        article = self.get_article(kwargs['article_id'])
+
+        my_choice = Like_Dislike.objects.filter(
+            article_id=kwargs['article_id'], reviewer_id=request.user.username)
+        my_choice_reset = Like_Dislike.objects.filter(
+            article_id=kwargs['article_id'], reviewer_id=request.user.username, like_or_dislike=0)
+        my_like_already = Like_Dislike.objects.filter(
+            article_id=kwargs['article_id'], reviewer_id=request.user.username, like_or_dislike=1)
+        my_dislike_already = Like_Dislike.objects.filter(
+            article_id=kwargs['article_id'], reviewer_id=request.user.username, like_or_dislike=-1)
+
+        if not my_choice:
+            like = Like_Dislike(
+                reviewer=request.user, like_or_dislike=1, article=article
+            )
+            like.save()
+            Article.objects.filter(
+                id=kwargs['article_id']).update(
+                likes_count=article.likes_count + 1)
+            return Response({"success": "You have successfully liked this article."})
+        else:
+            if my_choice_reset:
+                Like_Dislike.objects.filter(
+                    article_id=kwargs['article_id'], reviewer_id=request.user.username).update(like_or_dislike=1)                
+                Article.objects.filter(
+                    id=kwargs['article_id']).update(
+                    likes_count=article.likes_count + 1)
+                return Response({"success": "You have successfully liked this article."})
+            elif my_like_already:
+                # my_choice.delete()
+                Like_Dislike.objects.filter(
+                    article_id=kwargs['article_id'], reviewer_id=request.user.username).update(like_or_dislike=0)
+                Article.objects.filter(
+                    id=kwargs['article_id']).update(likes_count=article.likes_count - 1)
+                return Response(
+                    {"message": "Your like has been revoked"}, status=status.HTTP_200_OK,)
+            elif my_dislike_already:
+                Like_Dislike.objects.filter(
+                    article_id=kwargs['article_id'], reviewer_id=request.user.username).update(like_or_dislike=1)
+                Article.objects.filter(
+                    id=kwargs['article_id']).update(
+                        likes_count=article.likes_count + 1, dislikes_count=article.dislikes_count - 1)
+                return Response({"success": "Your dislike for the article has changed to a like."})
+
+
+class Dislike(APIView):
+    """
+    POST articles/:id/dislike/ to dislike an article
+    GET articles/:id/ and view dislikes_count
+    """
+    permission_classes = (IsAuthenticated, )
+
+    def get_article(self, article_id):
+        """ Method to search for an article object by its id"""
+        try:
+            return Article.objects.get(id=article_id)
+        except Article.DoesNotExist:
+            raise NotFound({"error": "Article does not exist"})
+
+    def post(self, request, **kwargs):
+        """ Method to dislike an article and if endpoint hit twice
+            by same user for that article revoke dislike
+        """
+        article = self.get_article(kwargs['article_id'])
+        my_choice = Like_Dislike.objects.filter(
+            article_id=kwargs['article_id'], reviewer_id=request.user.username)
+        my_choice_reset = Like_Dislike.objects.filter(
+            article_id=kwargs['article_id'], reviewer_id=request.user.username, like_or_dislike=0)
+        my_dislike_already = Like_Dislike.objects.filter(
+            article_id=kwargs['article_id'], reviewer_id=request.user.username, like_or_dislike=-1)
+        my_like_already = Like_Dislike.objects.filter(
+            article_id=kwargs['article_id'], reviewer_id=request.user.username, like_or_dislike=1)
+
+        if not my_choice:
+            # if I have never liked or disliked or reset my choice to 0
+            dislike = Like_Dislike(
+                reviewer=request.user, like_or_dislike=-1, article=article)
+            dislike.save()
+            Article.objects.filter(
+                id=kwargs['article_id']).update(
+                    dislikes_count=article.dislikes_count + 1)
+
+            return Response({"success": "You have successfully disliked this article."})
+
+        else:
+            if my_choice_reset:
+                Like_Dislike.objects.filter(
+                    article_id=kwargs['article_id'], reviewer_id=request.user.username).update(like_or_dislike=-1)
+                Article.objects.filter(
+                    id=kwargs['article_id']).update(
+                        dislikes_count=article.dislikes_count + 1)
+                return Response({"success": "You have successfully disliked this article."})
+            # check if there was a previous choice. Either the person had disliked or liked before
+            elif my_dislike_already:
+                # my_choice.delete()
+                Like_Dislike.objects.filter(
+                    article_id=kwargs['article_id'], reviewer_id=request.user.username).update(like_or_dislike=0)
+                Article.objects.filter(
+                    id=kwargs['article_id']).update(dislikes_count=article.dislikes_count - 1)
+                return Response(
+                    {"message": "Your dislike has been revoked"}, status=status.HTTP_200_OK,)
+            elif my_like_already:
+                Like_Dislike.objects.filter(
+                    article_id=kwargs['article_id'], reviewer_id=request.user.username).update(like_or_dislike=-1)
+                Article.objects.filter(
+                    id=kwargs['article_id']).update(
+                        likes_count=article.likes_count - 1, dislikes_count=article.dislikes_count + 1)
+                return Response({"success": "Your like for the article has changed to a dislike."})

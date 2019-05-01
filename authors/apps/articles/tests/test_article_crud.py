@@ -9,7 +9,7 @@ from authors.apps.authentication.models import User
 
 class ArticleCrudTest(BaseTestCase):
     """
-    Class Test Case for Testing user Login functionality
+    Class Test Case for Testing article crud functionality
     """
     # Initialize fixture for the class Test Case
     fixtures = ['authors/apps/articles/fixtures/article.json',
@@ -183,6 +183,18 @@ class ArticleCrudTest(BaseTestCase):
     def test_delete_article_not_found(self):
         """
         Method tests deleting the non existant article
+        """
+        url = reverse('articles-list-create')
+        response = self.client.post(
+            url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        url = '/api/articles/1000/'
+        response = self.client.delete(
+            url, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_article_not_found_message(self):
+        """
+        Method tests disliking the non existant article
         """
         url = reverse('articles-list-create')
         response = self.client.post(
