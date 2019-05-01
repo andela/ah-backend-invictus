@@ -3,6 +3,8 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
+from datetime import timedelta
+from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.generics import RetrieveUpdateAPIView
@@ -10,11 +12,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import exceptions
+from .token import generate_token
 
-from .models import User
+from .models import User, ResetPasswordToken, clear_expired_tokens
 from .renderers import UserJSONRenderer
 from .serializers import (
-    LoginSerializer, RegistrationSerializer, UserSerializer
+    LoginSerializer, RegistrationSerializer, UserSerializer,
+    ResetPasswordTokenSerializer, ResetPasswordSerializer
 )
 
 
@@ -144,3 +148,80 @@ class AccountActivationAPIView(APIView):
         return Response({
             "error": "Activation link is invalid.",
         }, status=status.HTTP_400_BAD_REQUEST)
+
+class PasswordReset(APIView):
+    # Allow any user (authenticated or not) to hit this endpoint.
+    permission_classes = (AllowAny,)
+    authentication_classes = ()
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = ResetPasswordTokenSerializer
+
+    def post(self, request):
+        # request to reset email
+
+        # The create serializer, validate serializer
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = User.objects.filter(email = request.data['email']).distinct().first()
+
+        token = generate_token()
+        serializer.save(user = user, token = token)
+
+        current_site = get_current_site(request)
+
+        activation_link = '{}/api/reset_password/{}/'.format(current_site, token)
+
+        subject = 'Reset account password'
+        message = 'Click the link below to reset your password.\n{}'.format(
+            activation_link)
+        from_email = settings.EMAIL_HOST_USER
+        to_email = user.email
+        send_mail(subject, message, from_email, [to_email],
+                  fail_silently=False)
+        response = {
+            "message": "Check your email address for a reset  link."
+        }
+
+        return Response(response, status=status.HTTP_200_OK)
+
+
+class PasswordResetToken(APIView):
+    # Allow any user (authenticated or not) to hit this endpoint.
+    permission_classes = (AllowAny,)
+    authentication_classes = ()
+    serializer_class = ResetPasswordSerializer
+
+    def post(self, request, token):
+        # reset password
+
+        ResetPasswordToken_obj = ResetPasswordToken.objects.filter(token = token).distinct()
+
+        if ResetPasswordToken_obj.exists():
+            ResetPasswordToken_obj = ResetPasswordToken_obj.first()
+            expiry_date = ResetPasswordToken_obj.created_at + timedelta(hours=24)
+        else:
+            ResetPasswordToken_obj = None
+        
+
+
+        if not ResetPasswordToken_obj or timezone.now() > expiry_date:
+            return Response({
+                "message": "Ivalid link. Regenerate a reset password token"
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        user = ResetPasswordToken_obj.user
+
+        serializer = self.serializer_class(
+            user, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        ResetPasswordToken_obj.delete()
+        now_minus_expiry_time = timezone.now() - timedelta(hours=24)
+        clear_expired_tokens(now_minus_expiry_time)
+
+        return Response({
+            "message": "Password reset successfull."
+        }, status=status.HTTP_200_OK)

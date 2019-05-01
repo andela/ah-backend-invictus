@@ -1,5 +1,6 @@
 import jwt
 import datetime
+from django.utils.timezone import now
 
 from django.conf import settings
 from django.contrib.auth.models import (
@@ -135,3 +136,13 @@ class User(AbstractBaseUser, PermissionsMixin):
             )
         except Exception as e:
             return e
+
+class ResetPasswordToken(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    token = models.CharField(max_length=50, unique=True)
+    email = models.EmailField(null=True)
+    created_at = models.DateTimeField(default=now)
+
+def clear_expired_tokens(now_minus_expiry_time):
+    """Remove all expired tokens."""
+    ResetPasswordToken.objects.filter(created_at__lte=now_minus_expiry_time).delete()
