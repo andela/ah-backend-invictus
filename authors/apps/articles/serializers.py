@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
+from authors.apps.article_tags.models import ArticleTag
 from .models import Article
 from .validations import ValidateArticleCreation
 from authors.apps.comments.serializers import CommentSerializer
 
 
 class ArticleSerializer(serializers.ModelSerializer):
-
     title = serializers.CharField(
         required=True,
         error_messages={
@@ -27,6 +27,11 @@ class ArticleSerializer(serializers.ModelSerializer):
             "required": "The body field is required",
             "blank": "The body field cannot be left blank"
         }
+    )
+    tagList = serializers.SlugRelatedField(
+        many=True,
+        queryset=ArticleTag.objects.all(),
+        slug_field='article_tag_text'
     )
 
     def validate(self, data):
@@ -61,7 +66,8 @@ class ArticleSerializer(serializers.ModelSerializer):
             'updated_at',
             'favorited',
             'favorite_count',
-            'comments'
+            'comments',
+            'tagList'
         )
         depth = 1
         read_only_fields = ('created_at', 'updated_at', 'author',
