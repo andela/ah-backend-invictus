@@ -148,6 +148,7 @@ CORS_ORIGIN_WHITELIST = (
 # the `authentication` module. This module is registered above in a setting
 # called `INSTALLED_APPS`.
 AUTH_USER_MODEL = 'authentication.User'
+AUTH_PROFILE_MODULE = 'profiles.UserProfile'
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'authors.apps.core.exceptions.core_exception_handler',
