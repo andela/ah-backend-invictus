@@ -41,7 +41,7 @@ class ArticleCrudTest(BaseTestCase):
         url = reverse('articles-list-create')
         response = self.client.post(
             url, self.create_article_with_no_title, HTTP_AUTHORIZATION=self.auth_header, format="json")
-        self.assertIn("The title field is required", str(response.data))
+        self.assertIn("This field may not be null", str(response.data))
 
     def test_user_created_article_blank_description(self):
         """
@@ -60,7 +60,7 @@ class ArticleCrudTest(BaseTestCase):
         url = reverse('articles-list-create')
         response = self.client.post(
             url, self.create_article_with_no_description, HTTP_AUTHORIZATION=self.auth_header, format="json")
-        self.assertIn("The description field is required", str(response.data))
+        self.assertIn("This field may not be null", str(response.data))
 
     def test_only_one_article_created(self):
         """
@@ -137,7 +137,7 @@ class ArticleCrudTest(BaseTestCase):
         url = reverse('articles-list-create')
         response = self.client.post(
             url, self.create_article_with_no_body, HTTP_AUTHORIZATION=self.auth_header, format="json")
-        self.assertIn("The body field is required", str(response.data))
+        self.assertIn("This field may not be null", str(response.data))
 
     def test_user_created_article_short_title(self):
         """
@@ -174,7 +174,7 @@ class ArticleCrudTest(BaseTestCase):
         url = reverse('articles-list-create')
         response = self.client.post(
             url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
-        article_id = response.data['id']
+        article_id = response.data['article']['id']
         url = '/api/articles/{}/'.format(article_id)
         response = self.client.delete(
             url, HTTP_AUTHORIZATION=self.auth_header, format="json")

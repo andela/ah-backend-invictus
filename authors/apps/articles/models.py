@@ -3,6 +3,7 @@ from django.db.models.signals import pre_save
 from django.utils import timezone
 
 from authors.apps.authentication.models import User
+from authors.apps.article_tags.models import ArticleTag
 from .utils import unique_slug_generator
 
 
@@ -20,6 +21,7 @@ class Article(models.Model):
     updated_at = models.DateTimeField(default=timezone.now)
     favorited = models.BooleanField(default=False)
     favorite_count = models.IntegerField(default=0)
+    tagList = models.ManyToManyField(ArticleTag, related_name='articles')
     author = models.ForeignKey(
         User, to_field='username', on_delete=models.CASCADE, null=False)
 

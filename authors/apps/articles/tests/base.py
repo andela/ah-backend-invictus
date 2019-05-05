@@ -37,49 +37,59 @@ class BaseTestCase(APITestCase):
             "title": "Fresh kid wonders on stage at lugogo",
             "description": "he wows the kids",
             "body": "Fresh kid is a 5 year musician who has been on map.",
-            "author": self.user.username
+            "author": self.user.username,
+            "tagList": []
         }
         self.create_article_with_blank_title = {
             "title": "",
             "description": "he wows the kids",
-            "body": "Fresh kid is a 5 year musician who has been on map."
+            "body": "Fresh kid is a 5 year musician who has been on map.",
+            "tagList": []
         }
         self.create_article_with_no_title = {
             "description": "he wows the kids",
-            "body": "Fresh kid is a 5 year musician who has been on map."
+            "body": "Fresh kid is a 5 year musician who has been on map.",
+            "tagList": []
         }
         self.create_article_with_blank_description = {
             "title": "fresh kid is a wiz",
             "description": "",
-            "body": "Fresh kid is a 5 year musician who has been on map."
+            "body": "Fresh kid is a 5 year musician who has been on map.",
+            "tagList": []
         }
         self.create_article_with_no_description = {
             "title": "he wows the kids",
-            "body": "Fresh kid is a 5 year musician who has been on map."
+            "body": "Fresh kid is a 5 year musician who has been on map.",
+            "tagList": []
         }
         self.create_article_with_blank_body = {
             "title": "fresh kid is a wiz",
             "description": "Fresh kid is a 5 year musician who has been on map",
-            "body": ""
+            "body": "",
+            "tagList": []
         }
         self.create_article_with_no_body = {
             "title": "he wows the kids",
-            "bdescription": "Fresh kid is a 5 year musician who has been on map."
+            "bdescription": "Fresh kid is a 5 year musician who has been on map.",
+            "tagList": []
         }
 
         self.update_article = {
             "title": "Fresh kid concert was great",
             "description": "he wowed the adults too",
-            "body": "Fresh kid is on the map."
+            "body": "Fresh kid is on the map.",
+            "tagList": []
         }
         self.short_title_article = {
             "title": "F",
             "description": "he wowed the adults too",
-            "body": "Fresh kid is on the map."
+            "body": "Fresh kid is on the map.",
+            "tagList": []
         }
 
         self.create_article_user = {
             "title": "Town hall at Andela",
             "description": "There was lots of fun",
-            "body": "There was no TIA chant."
+            "body": "There was no TIA chant.",
+            "tagList": []
         }
