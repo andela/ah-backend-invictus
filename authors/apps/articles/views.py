@@ -7,6 +7,7 @@ from .renderer import ArticleJSONRenderer
 from .models import Article
 from .serializers import ArticleSerializer
 from .permissions import IsOwnerOrReadOnly
+from .pagination import ArticlePageNumberPagination
 
 
 class ListCreateArticles(generics.ListCreateAPIView):
@@ -18,6 +19,7 @@ class ListCreateArticles(generics.ListCreateAPIView):
     serializer_class = ArticleSerializer
     permission_classes = (IsAuthenticated, )
     renderer_classes = (ArticleJSONRenderer, )
+    pagination_class = ArticlePageNumberPagination
 
     def perform_create(self, serializer):
 
