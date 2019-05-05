@@ -11,8 +11,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('article_tags', '0001_initial'),
     ]
 
     operations = [
@@ -29,7 +27,6 @@ class Migration(migrations.Migration):
                 ('favorited', models.BooleanField(default=False)),
                 ('favorite_count', models.IntegerField(default=0)),
                 ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, to_field='username')),
-                ('tagList', models.ManyToManyField(related_name='articles', to='article_tags.ArticleTag')),
             ],
         ),
     ]
