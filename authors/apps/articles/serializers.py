@@ -51,7 +51,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         }
 
     class Meta:
-        """class for returning our field."""
+        """class for returning our fields."""
 
         comments = CommentSerializer(many=True)
 
@@ -64,6 +64,8 @@ class ArticleSerializer(serializers.ModelSerializer):
             'slug',
             'created_at',
             'updated_at',
+            'likes_count',
+            'dislikes_count',
             'favorited',
             'favorite_count',
             'comments',

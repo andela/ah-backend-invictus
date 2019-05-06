@@ -17,8 +17,10 @@ class Article(models.Model):
                             null=True)
     description = models.TextField()
     body = models.TextField()
-    created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    likes_count = models.IntegerField(default=0)
+    dislikes_count = models.IntegerField(default=0)
     favorited = models.BooleanField(default=False)
     favorite_count = models.IntegerField(default=0)
     tagList = models.ManyToManyField(ArticleTag, related_name='articles')
@@ -39,3 +41,16 @@ def slug_generator(sender, instance, *args, **kwargs):
 
 
 pre_save.connect(slug_generator, sender=Article)
+
+
+class Like_Dislike(models.Model):
+    """
+    Model class for liking or disliking an article
+    """
+    date_liked = models.DateTimeField(auto_now_add=True, editable=False)
+    like_or_dislike = models.IntegerField()
+    reviewer = models.ForeignKey(
+        User, to_field='username', on_delete=models.CASCADE, null=False)
+    article = models.ForeignKey(
+        Article, to_field='id', on_delete=models.CASCADE, null=False
+    )
