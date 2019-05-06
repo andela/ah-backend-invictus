@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from authors.apps.article_tags.models import ArticleTag
-from .models import Article
+from .models import Article, Report
 from .validations import ValidateArticleCreation
 
 
@@ -70,3 +70,19 @@ class ArticleSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('created_at', 'updated_at', 'author',
                             'favorited', 'favorite_count', 'slug')
+
+
+class ReportSerializer(serializers.ModelSerializer):
+    """ Class to serialize the data in the report body """
+    reason = serializers.CharField(
+        required=True,
+        error_messages={
+            "required": "The reason field is required",
+            "blank": "The reason field cannot be left blank"
+        }
+    )
+
+    class Meta:
+        """class for returning our fields."""
+        model = Report
+        fields = '__all__'
