@@ -1,0 +1,40 @@
+[
+    {
+        "model": "authentication.user",
+        "pk": 1,
+        "fields": {
+            "username": "sanya",
+            "email": "sanyaken@gmail.com",
+            "password": "pbkdf2_sha256$120000$Rf2yxsEFXOI8$095XPdmnuheMIofQPVnlMftNwb/gg2BB67VIJgKljuc=",
+            "created_at": "2013-03-23 00:03:00",
+            "updated_at": "2013-03-23 01:02:00"
+        }
+    },
+
+    {
+        "model": "authentication.user",
+        "pk": 2,
+        "fields": {
+            "username": "kenned",
+            "email": "kenned@gmail.com",
+            "password": "pbkdf2_sha256$120000$FrOa2gzoWZ3m$v0T3Qk3hobNTxWrth6cHjNCREZtwWZiSDw357Hp3tbI=",
+            "created_at": "2013-03-23 00:03:00",
+            "updated_at": "2013-03-23 01:02:00"
+        }
+    },
+    {
+        "model": "authentication.user",
+        "pk": 3,
+        "fields": {
+            "username": "adminuser",
+            "email": "admin@gmail.com",
+            "password": "pbkdf2_sha256$120000$Xh4W8kGbUrgM$f9UVM8xwSI+pEYNdhb6L/g4IEGUJQEJ2d1SARabmhKo=",
+            "created_at": "2013-03-23 00:03:00",
+            "updated_at": "2013-03-23 01:02:00",
+            "is_active": true,
+            "is_superuser": true,
+            "email_verified": true
+        }
+    }
+    
+]
