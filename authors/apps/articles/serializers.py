@@ -3,7 +3,6 @@ from rest_framework import serializers
 from authors.apps.article_tags.models import ArticleTag
 from .models import Article
 from .validations import ValidateArticleCreation
-from authors.apps.comments.serializers import CommentSerializer
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -53,8 +52,6 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         """class for returning our fields."""
 
-        comments = CommentSerializer(many=True)
-
         model = Article
         fields = (
             'id',
@@ -68,9 +65,8 @@ class ArticleSerializer(serializers.ModelSerializer):
             'dislikes_count',
             'favorited',
             'favorite_count',
-            'comments',
-            'tagList'
+            'tagList',
+            'author'
         )
-        depth = 1
         read_only_fields = ('created_at', 'updated_at', 'author',
                             'favorited', 'favorite_count', 'slug')

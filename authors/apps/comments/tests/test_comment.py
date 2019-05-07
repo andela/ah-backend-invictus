@@ -88,10 +88,11 @@ class CommentTestCase(BaseTestCase):
         """Test update a single comment."""
         # post an article
         post_url = reverse('comment_list', kwargs={'article_id': 1})
-        self.client.post(post_url, self.comment,
+        response = self.client.post(post_url, self.comment,
                          HTTP_AUTHORIZATION=self.auth_header, format="json")
+        comment_id = response.data['comment']['id']
         # update a comment
-        url = reverse('comment_detail', kwargs={'article_id': 1, 'pk': 8})
+        url = reverse('comment_detail', kwargs={'article_id': 1, 'pk': comment_id})
         response = self.client.put(url, self.comment2,
                                    HTTP_AUTHORIZATION=self.auth_header,
                                    format="json")
@@ -117,16 +118,17 @@ class CommentTestCase(BaseTestCase):
         """Test update a single comment for an unauthorized user."""
         # post an article
         post_url = reverse('comment_list', kwargs={'article_id': 1})
-        self.client.post(post_url, self.comment,
+        response = self.client.post(post_url, self.comment,
                          HTTP_AUTHORIZATION=self.auth_header,
                          format="json")
+        comment_id = response.data['comment']['id']
         # login another user
         login_url = reverse('user_login')
         response = self.client.post(login_url, self.data2, format="json")
         token = response.data['token']
         auth_header = 'Bearer {}'.format(token)
         # update a comment
-        url = reverse('comment_detail', kwargs={'article_id': 1, 'pk': 10})
+        url = reverse('comment_detail', kwargs={'article_id': 1, 'pk': comment_id})
         comment2 = {
             "comment": {
                 "body": "His name was my name too..."
@@ -142,10 +144,11 @@ class CommentTestCase(BaseTestCase):
     def test_owner_delete_a_comment(self):
         """Test delete a single comment."""
         url = reverse('comment_list', kwargs={'article_id': 1})
-        self.client.post(url, self.comment3,
+        response = self.client.post(url, self.comment3,
                          HTTP_AUTHORIZATION=self.auth_header,
                          format="json")
-        url = reverse('comment_detail', kwargs={'article_id': 1, 'pk': 4})
+        comment_id = response.data['comment']['id']
+        url = reverse('comment_detail', kwargs={'article_id': 1, 'pk': comment_id})
         response = self.client.delete(url, HTTP_AUTHORIZATION=self.auth_header,
                                       format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -157,7 +160,8 @@ class CommentTestCase(BaseTestCase):
                                     HTTP_AUTHORIZATION=self.auth_header,
                                     format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        url = reverse('comment_detail', kwargs={'article_id': 1000, 'pk': 4})
+        comment_id = response.data['comment']['id']
+        url = reverse('comment_detail', kwargs={'article_id': 1000, 'pk': comment_id})
         response = self.client.delete(url, HTTP_AUTHORIZATION=self.auth_header,
                                       format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -166,16 +170,17 @@ class CommentTestCase(BaseTestCase):
         """Test update a single comment for an unauthorized user."""
         # post an article
         post_url = reverse('comment_list', kwargs={'article_id': 1})
-        self.client.post(post_url, self.comment,
+        response = self.client.post(post_url, self.comment,
                          HTTP_AUTHORIZATION=self.auth_header,
                          format="json")
+        comment_id = response.data['comment']['id']
         # login another user
         login_url = reverse('user_login')
         response = self.client.post(login_url, self.data2, format="json")
         token = response.data['token']
         auth_header = 'Bearer {}'.format(token)
         # delete a comment
-        url = reverse('comment_detail', kwargs={'article_id': 1, 'pk': 7})
+        url = reverse('comment_detail', kwargs={'article_id': 1, 'pk': comment_id})
         response = self.client.delete(url, HTTP_AUTHORIZATION=auth_header,
                                       format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
