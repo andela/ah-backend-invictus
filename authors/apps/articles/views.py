@@ -2,7 +2,8 @@ from django.utils import timezone
 
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
+from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
+                                        IsAuthenticated, AllowAny, )
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound
@@ -29,7 +30,7 @@ class ListArticles(generics.ListAPIView):
 
     filter_class = ArticleFilter
     filter_backends = (SearchFilter, DjangoFilterBackend, )
-    search_fields = ('title', 'author__username', 'description')
+    search_fields = ('title', 'author__username', 'description',)
 
 
 class CreateArticles(generics.CreateAPIView):
@@ -49,7 +50,7 @@ class CreateArticles(generics.CreateAPIView):
         data["body"] = request.data.get("body")
         data["tagList"] = request.data.get("tagList")
         ArticleTagView.create_tag(ArticleTagView, request.data.get("tagList"))
-        serializer = ArticleSerializer(data=data)
+        serializer = ArticleSerializer(data=data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         save_serialiser = serializer.save(
             author=self.request.user
@@ -60,16 +61,13 @@ class CreateArticles(generics.CreateAPIView):
         return Response({"article": serializer.data}, status=status.HTTP_201_CREATED)
 
 
-class RetrieveUpdateDestroyArticle(generics.RetrieveUpdateDestroyAPIView):
+class RetrieveArticle(APIView):
     """
     GET articles/:id/
-    PUT articles/:id/
-    DELETE articles/:id/
     """
     queryset = Article.objects.all()
+    authentication_classes = ()
     serializer_class = ArticleSerializer
-    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly, )
-    renderer_classes = (ArticleJSONRenderer, )
     err_message = {"errors": "That article is not found"}
 
     def get(self, request, pk, **kwargs):
@@ -81,6 +79,18 @@ class RetrieveUpdateDestroyArticle(generics.RetrieveUpdateDestroyAPIView):
                 queryset, many=True, context={'request': request})
             return Response(serializer.data)
         return Response(self.err_message, status=status.HTTP_404_NOT_FOUND)
+
+
+class UpdateDestroyArticle(generics.RetrieveUpdateDestroyAPIView):
+    """
+    PUT articles/:id/
+    DELETE articles/:id/
+    """
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+    permission_classes = (IsOwnerOrReadOnly, )
+    renderer_classes = (ArticleJSONRenderer, )
+    err_message = {"errors": "That article is not found"}
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
