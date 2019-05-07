@@ -1,5 +1,5 @@
 {
-  "name": "Ah-backend-guardians",
+  "name": "Ah-backend-invictus",
   "scripts": {},
   "env": {
       "DB_HOST": {
@@ -33,6 +33,12 @@
           "required": true
       },
       "EMAIL_PORT": {
+          "required": true
+      },
+      "TWITTER_CONSUMER_KEY": {
+          "required": true
+      },
+      "TWITTER_CONSUMER_SECRET": {
           "required": true
       }
   },
