@@ -1,0 +1,36 @@
+[
+    {
+        "model": "articles.article",
+        "pk": 1,
+        "fields": {
+            "slug" : "this-is-andela-ftub",
+            "title": "this is andela",
+            "description": "the techville",
+            "body": "best place to work in Uganda",
+            "created_at": "2019-04-29T14:13:25.526681Z",
+            "updated_at": "2019-04-29T14:13:25.526692Z",
+            "likes_count": 1,
+            "dislikes_count": 0,
+            "favorited": false,
+            "favorite_count": 0,
+            "author_id": "sanya" 
+        } 
+    },
+    {
+        "model": "articles.article",
+        "pk": 2,
+        "fields": {
+            "slug" : "python-is-good-ftuz",
+            "title": "python is good",
+            "description": "for all companies",
+            "body": "try out this new language",
+            "created_at": "2019-04-29T14:13:25.526681Z",
+            "updated_at": "2019-04-29T14:13:25.526692Z",
+            "likes_count": 1,
+            "dislikes_count": 0,
+            "favorited": false,
+            "favorite_count": 0,
+            "author_id": "sanya" 
+        } 
+    }
+]

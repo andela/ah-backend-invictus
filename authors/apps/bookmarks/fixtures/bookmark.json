@@ -1,0 +1,24 @@
+[
+    {
+        "model": "bookmarks.bookmark",
+        "pk": 30,
+        "fields": {
+            "article_title": "python is good",
+            "date_created": "2019-04-29T14:13:25.526681Z",
+            "article_id": 2,
+            "user_id": 3,
+            "username": "admin" 
+        } 
+    },
+    {
+        "model": "bookmarks.bookmark",
+        "pk": 31,
+        "fields": {
+            "article_title": "python is gurus",
+            "date_created": "2019-04-29T14:13:25.526681Z",
+            "article_id": 2,
+            "user_id": 2,
+            "username": "kenned" 
+        } 
+    }
+]
