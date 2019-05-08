@@ -87,11 +87,13 @@ class ArticleSerializer(serializers.ModelSerializer):
             'favorited',
             'favorite_count',
             'author',
-            'tagList', 'social_links',
+            'tagList',
+            'read_time',
+            'social_links',
         )
         read_only_fields = ('created_at', 'updated_at', 'author',
                             'favorited', 'favorite_count', 'slug',
-                            'social_links')
+                            'social_links', 'read_time')
 
 
 class ReportSerializer(serializers.ModelSerializer):
