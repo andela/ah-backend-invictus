@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import NotFound
 
 from authors.apps.articles.models import Article
-from .models import Comment
+from .models import Comment, Likes
 from .serializers import CommentSerializer
 
 
@@ -123,3 +123,55 @@ class RetrieveUpdateDeleteComment(APIView):
         return Response({
             "error": "You do not have permissions to delete this comment."
         }, status=status.HTTP_403_FORBIDDEN)
+
+
+class Like(APIView):
+    """
+    create and get likes.
+    """
+
+    permission_classes = (IsAuthenticated, )
+
+    def get_comment(self, comment_id):
+        """search for a comment by id."""
+        try:
+            return Comment.objects.get(id=comment_id)
+        except Comment.DoesNotExist:
+            raise NotFound({"error": "The comment does not exist."})
+
+    def get_like(self, comment_id, username):
+        try:
+            return Likes.objects.get(comment=comment_id,commenter_id=username)
+        except Likes.DoesNotExist:
+            return None
+
+    def get(self, request, **kwargs):
+        """Method to check for your like on a comment"""
+        like = self.get_like(kwargs['comment_id'], request.user.username)
+        if like:
+            return Response({"status":True}, status=status.HTTP_200_OK)
+        return Response({"status":False}, status=status.HTTP_200_OK)
+
+    def post(self, request, **kwargs):
+        """ Method to like a specific comment."""
+        comment = self.get_comment(kwargs['comment_id'])
+        my_like = self.get_like(kwargs['comment_id'], request.user.username)
+        if comment.author.username == request.user.username:
+            return Response({
+                "message": "You can not like your own comment."
+            }, status=status.HTTP_403_FORBIDDEN)
+        elif not my_like:
+            like = Likes(commenter_id=request.user.username,
+                like=1, comment=comment)
+            like.save()
+            Comment.objects.filter(id=kwargs['comment_id']).update(
+                likes_counter=comment.likes_counter + 1)
+            return Response({"success": "You have successfully liked this comment."},
+                            status=status.HTTP_200_OK)
+        else:
+            my_like.delete()
+            Comment.objects.filter(
+                id=kwargs['comment_id']).update(likes_counter=comment.likes_counter - 1)
+            return Response({"message": "Your like has been cancelled"},
+                            status=status.HTTP_200_OK)
+

@@ -16,6 +16,7 @@ class Comment(models.Model):
                                on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    likes_counter = models.IntegerField(default=0)
 
     def __str__(self):
         """
@@ -23,3 +24,16 @@ class Comment(models.Model):
         `Comment` model instance.
         """
         return self.body
+
+
+class Likes(models.Model):
+    """
+    Model class for liking a specific comment.
+    """
+    commenter = models.ForeignKey(
+        User, to_field='username', on_delete=models.CASCADE, null=False)
+    like = models.IntegerField()
+    comment = models.ForeignKey(
+        Comment, to_field='id', on_delete=models.CASCADE, null=False
+    )
+    liked_at = models.DateTimeField(auto_now_add=True, editable=False)

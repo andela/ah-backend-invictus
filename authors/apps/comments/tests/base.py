@@ -33,6 +33,24 @@ class BaseTestCase(APITestCase):
             self.login, self.data, format="json")
         user_token = self.login_response.data['token']
         self.auth_header = 'Bearer {}'.format(user_token)
+
+        self.user2 = User.objects.create_user(
+            username='test12', email='test12@example.com', password='123456789'
+        )
+        setattr(self.user2, 'email_verified', True)
+        self.user2.save()
+        self.data = {
+            'user':
+                {
+                    'email': 'test12@example.com', 'password': '123456789'
+                }
+            }
+        self.login = reverse('user_login')
+        self.login_response = self.client.post(
+            self.login, self.data, format="json")
+        user_token2 = self.login_response.data['token']
+        self.auth_header2 = 'Bearer {}'.format(user_token2)
+
         self.article = Article.objects.create(
             id=1,
             title='Town hall at Andela',
