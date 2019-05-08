@@ -13,8 +13,8 @@ from authors.apps.article_tags.views import ArticleTagView
 from authors.apps.article_tags.models import ArticleTag
 from .article_filter import ArticleFilter
 from .renderer import ArticleJSONRenderer
-from .models import Article, Like_Dislike
-from .serializers import ArticleSerializer
+from .models import Article, Like_Dislike, Report
+from .serializers import ArticleSerializer, ReportSerializer
 from .permissions import IsOwnerOrReadOnly
 from .pagination import ArticlePageNumberPagination
 
@@ -129,9 +129,7 @@ class Like(APIView):
             raise NotFound({"error": "Article does not exist"})
 
     def post(self, request, **kwargs):
-        """ Method to like an article and if endpoint hit twice
-            by same user for that article revoke like
-        """
+        """ Method to like an article """
 
         article = self.get_article(kwargs['article_id'])
 
@@ -156,13 +154,13 @@ class Like(APIView):
         else:
             if my_choice_reset:
                 Like_Dislike.objects.filter(
-                    article_id=kwargs['article_id'], reviewer_id=request.user.username).update(like_or_dislike=1)                
+                    article_id=kwargs['article_id'],
+                     reviewer_id=request.user.username).update(like_or_dislike=1)
                 Article.objects.filter(
                     id=kwargs['article_id']).update(
                     likes_count=article.likes_count + 1)
                 return Response({"success": "You have successfully liked this article."})
             elif my_like_already:
-                # my_choice.delete()
                 Like_Dislike.objects.filter(
                     article_id=kwargs['article_id'], reviewer_id=request.user.username).update(like_or_dislike=0)
                 Article.objects.filter(
@@ -193,9 +191,7 @@ class Dislike(APIView):
             raise NotFound({"error": "Article does not exist"})
 
     def post(self, request, **kwargs):
-        """ Method to dislike an article and if endpoint hit twice
-            by same user for that article revoke dislike
-        """
+        """ Method to dislike an article """
         article = self.get_article(kwargs['article_id'])
         my_choice = Like_Dislike.objects.filter(
             article_id=kwargs['article_id'], reviewer_id=request.user.username)
@@ -205,18 +201,14 @@ class Dislike(APIView):
             article_id=kwargs['article_id'], reviewer_id=request.user.username, like_or_dislike=-1)
         my_like_already = Like_Dislike.objects.filter(
             article_id=kwargs['article_id'], reviewer_id=request.user.username, like_or_dislike=1)
-
         if not my_choice:
-            # if I have never liked or disliked or reset my choice to 0
             dislike = Like_Dislike(
                 reviewer=request.user, like_or_dislike=-1, article=article)
             dislike.save()
             Article.objects.filter(
                 id=kwargs['article_id']).update(
                     dislikes_count=article.dislikes_count + 1)
-
             return Response({"success": "You have successfully disliked this article."})
-
         else:
             if my_choice_reset:
                 Like_Dislike.objects.filter(
@@ -225,9 +217,7 @@ class Dislike(APIView):
                     id=kwargs['article_id']).update(
                         dislikes_count=article.dislikes_count + 1)
                 return Response({"success": "You have successfully disliked this article."})
-            # check if there was a previous choice. Either the person had disliked or liked before
             elif my_dislike_already:
-                # my_choice.delete()
                 Like_Dislike.objects.filter(
                     article_id=kwargs['article_id'], reviewer_id=request.user.username).update(like_or_dislike=0)
                 Article.objects.filter(
@@ -241,3 +231,61 @@ class Dislike(APIView):
                     id=kwargs['article_id']).update(
                         likes_count=article.likes_count - 1, dislikes_count=article.dislikes_count + 1)
                 return Response({"success": "Your like for the article has changed to a dislike."})
+
+
+class Reports(APIView):
+    """POST articles/:id/report/ to report an article"""
+    permission_classes = (IsAuthenticated, )
+
+    def get_article_object(self, article_id):
+        """ Method to search for an article object by its id"""
+        try:
+            return Article.objects.get(id=article_id)
+        except Article.DoesNotExist:
+            raise NotFound({"error": "Article does not exist"})
+
+    def get_report_object(self, article_id, username):
+        """ Method to search for a report by the article id and username """
+        try:
+            return Report.objects.get(article=article_id, reporter_id=username)
+        except Report.DoesNotExist:
+            return None
+
+    def post(self, request, **kwargs):
+        """ Method to post a report"""
+        article = self.get_article_object(kwargs['article_id'])
+        report = self.get_report_object(
+            kwargs['article_id'], request.user.username)
+        if report:
+            return Response({"error": "You already reported this article"})
+        else:
+            report = request.data.get("report", {})
+            report['reporter'] = request.user.username
+            report['date_reported'] = timezone.now()
+            report['article'] = article.id
+            serializer = ReportSerializer(data=report)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            Article.objects.filter(
+                id=kwargs['article_id']).update(report_count=article.report_count + 1, reported=True)
+            return Response({
+                "report": serializer.data,
+                "message": "Report successfully created."
+            }, status=status.HTTP_201_CREATED)
+
+
+class ReportView(APIView):
+    """ GET articles/report/ to view all reports """
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request):
+        """ To get all reports of articles """
+        if request.user.is_superuser:
+            reported = []
+            reports = Report.objects.all()
+            report = ReportSerializer(reports, many=True)
+            reported.append(report.data)
+            return Response({
+                "reports": reported}, status.HTTP_200_OK)
+        return Response(
+            {"error": "You do not have permission to view the reported articles"}, status.HTTP_403_FORBIDDEN)

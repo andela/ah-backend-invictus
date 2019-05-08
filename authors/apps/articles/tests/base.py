@@ -33,6 +33,23 @@ class BaseTestCase(APITestCase):
         admin_test_token = self.admin_login_response.data['token']
         self.auth_header = 'Bearer {}'.format(admin_test_token)
 
+        self.user2 = User.objects.create_superuser(
+            username="superuser", email="super@gmail.com", password="SuperPassword1234")
+        setattr(self.user2, 'email_verified', True)
+        self.user2.save()
+
+        self.super_login_data = {
+            "user": {
+                "email": "super@gmail.com",
+                "password": "SuperPassword1234"
+            }
+        }
+
+        self.super_login_response = self.client.post(
+            self.login_url, self.super_login_data, format='json')
+        super_test_token = self.super_login_response.data['token']
+        self.super_auth_header = 'Bearer {}'.format(super_test_token)
+
         self.create_article_data = {
             "title": "Fresh kid wonders on stage at lugogo",
             "description": "he wows the kids",
@@ -99,4 +116,21 @@ class BaseTestCase(APITestCase):
             "body": "Fresh kid is a 5 year musician who has been on map.",
             "author": self.user.username,
             "tagList": ["edna"]
+        }
+
+        self.report = {
+            "report": {
+                "reason": "Plagiarism. He stole intellectual property and refused to site"
+            }
+        }
+
+        self.report_with_blank_reason = {
+            "report": {
+                "reason": ""
+            }
+        }
+
+        self.report_with_no_reason = {
+            "report": {
+            }
         }

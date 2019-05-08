@@ -11,7 +11,6 @@ class Article(models.Model):
     """
     Model class for creating an article
     """
-
     title = models.CharField(max_length=120)
     slug = models.SlugField(blank=True,
                             null=True)
@@ -21,6 +20,8 @@ class Article(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
     likes_count = models.IntegerField(default=0)
     dislikes_count = models.IntegerField(default=0)
+    reported = models.BooleanField(default=False)
+    report_count = models.IntegerField(default=0)
     favorited = models.BooleanField(default=False)
     favorite_count = models.IntegerField(default=0)
     tagList = models.ManyToManyField(ArticleTag, related_name='articles')
@@ -39,7 +40,6 @@ def slug_generator(sender, instance, *args, **kwargs):
     if not instance.slug:
         instance.slug = unique_slug_generator(instance)
 
-
 pre_save.connect(slug_generator, sender=Article)
 
 
@@ -52,5 +52,17 @@ class Like_Dislike(models.Model):
     reviewer = models.ForeignKey(
         User, to_field='username', on_delete=models.CASCADE, null=False)
     article = models.ForeignKey(
-        Article, to_field='id', on_delete=models.CASCADE, null=False
-    )
+        Article, to_field='id', on_delete=models.CASCADE, null=False)
+
+
+class Report(models.Model):
+    """
+    Model class for reporting an article to the administrator
+    for plagiarism or violating terms of agreement
+    """
+    article = models.ForeignKey(
+        Article, to_field='id', on_delete=models.CASCADE, null=False)
+    reason = models.TextField()
+    reporter = models.ForeignKey(
+        User, to_field='username', on_delete=models.CASCADE, null=False)
+    date_reported = models.DateTimeField(auto_now_add=True, editable=False)
