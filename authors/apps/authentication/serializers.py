@@ -225,25 +225,20 @@ class ResetPasswordTokenSerializer(serializers.ModelSerializer):
         user = User.objects.filter(email=email).distinct()
         if not user.exists() or not user.first().is_active:
             raise serializers.ValidationError(
-                "No active account with provided email."
-            )
-        
+                "No active account with provided email.")
         return data
+        
 
 class ResetPasswordSerializer(serializers.ModelSerializer):
     """serialization of user data."""
 
-    password = serializers.CharField(
-        max_length=128,
-        min_length=8,
-        write_only=True
-    )
+    password = serializers.CharField(max_length=128,
+                                     min_length=8,
+                                     write_only=True)
 
-    confirm_password = serializers.CharField(
-        max_length=128,
-        min_length=8,
-        write_only=True
-    )
+    confirm_password = serializers.CharField(max_length=128,
+                                             min_length=8,
+                                             write_only=True)
 
     def validate_password(self, password):
         """
@@ -271,25 +266,36 @@ class ResetPasswordSerializer(serializers.ModelSerializer):
 
         password = validated_data.pop('password', None)
         confirm_password = validated_data.pop('confirm_password', None)
-
         for (key, value) in validated_data.items():
             if key != 'confirm_password':
                 setattr(instance, key, value)
-
         old_password = instance.password
-
         if password is not None and password == confirm_password:
             instance.set_password(password)
         else:
             raise serializers.ValidationError(
-                "Passwords do not match!"
-            )
-
+                "Passwords do not match!")
         if check_password(password, old_password):
             raise serializers.ValidationError(
-                "New password should be different from previous password."
-            )
-
+                "New password should be different from previous password.")
         instance.save()
-
         return instance
+
+
+class SocialAuthenticationSerializer(serializers.Serializer):
+    """
+    Serializer class for social authentication requests.
+    This handles both facebook and google requests.
+    """
+    access_token = serializers.CharField(
+        required=True, trim_whitespace=True)
+
+
+class TwitterAuthenticationSerializer(serializers.Serializer):
+    """
+    Serializer class for twitter authentication requests
+    """
+    access_token = serializers.CharField(
+        required=True, trim_whitespace=True)
+    access_token_secret = serializers.CharField(
+        required=True, trim_whitespace=True)
