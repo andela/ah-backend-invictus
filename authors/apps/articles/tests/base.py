@@ -93,3 +93,10 @@ class BaseTestCase(APITestCase):
             "body": "There was no TIA chant.",
             "tagList": []
         }
+        self.article_with_tag = {
+            "title": "Fresh kid wonders on stage at lugogo",
+            "description": "he wows the kids",
+            "body": "Fresh kid is a 5 year musician who has been on map.",
+            "author": self.user.username,
+            "tagList": ["edna"]
+        }

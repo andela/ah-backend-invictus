@@ -75,7 +75,7 @@ class ArticleCrudTest(BaseTestCase):
         """
         Method tests for getting all articles
         """
-        url = '/api/articles/'
+        url = '/api/articles/all/'
         response = self.client.get(
             url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)

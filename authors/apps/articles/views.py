@@ -2,13 +2,16 @@ from django.utils import timezone
 
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 
 from authors.apps.article_tags.views import ArticleTagView
 from authors.apps.article_tags.models import ArticleTag
+from .article_filter import ArticleFilter
 from .renderer import ArticleJSONRenderer
 from .models import Article, Like_Dislike
 from .serializers import ArticleSerializer
@@ -16,9 +19,21 @@ from .permissions import IsOwnerOrReadOnly
 from .pagination import ArticlePageNumberPagination
 
 
-class ListCreateArticles(generics.ListCreateAPIView):
+class ListArticles(generics.ListAPIView):
+    """ Get articles"""
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+    authentication_classes = ()
+    renderer_classes = (ArticleJSONRenderer, )
+    pagination_class = ArticlePageNumberPagination
+
+    filter_class = ArticleFilter
+    filter_backends = (SearchFilter, DjangoFilterBackend, )
+    search_fields = ('title', 'author__username', 'description')
+
+
+class CreateArticles(generics.CreateAPIView):
     """
-    GET articles/
     POST articles/
     """
     queryset = Article.objects.all()
