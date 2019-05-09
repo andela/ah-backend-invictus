@@ -10,6 +10,8 @@ class CommentSerializer(serializers.ModelSerializer):
     """
 
     author = serializers.ReadOnlyField(source='author.username')
+    first_index = serializers.IntegerField(min_value=0, required=False)
+    last_index = serializers.IntegerField(min_value=0, required=False)
 
     class Meta:
         model = Comment

@@ -19,6 +19,9 @@ class Comment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     likes_counter = models.IntegerField(default=0)
     history = HistoricalRecords()
+    first_index = models.PositiveIntegerField(blank=True, null=True)
+    last_index = models.PositiveIntegerField(blank=True, null=True)
+    highlighted_text = models.TextField(blank=True, null=True)
 
     def __str__(self):
         """

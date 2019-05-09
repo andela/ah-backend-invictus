@@ -189,3 +189,79 @@ class CommentTestCase(BaseTestCase):
         response = self.client.delete(url, HTTP_AUTHORIZATION=auth_header,
                                       format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_highlight_a_text(self):
+        """Test to highlight text on an article."""
+        url = reverse('comment_list', kwargs={'article_id': 1})
+        response = self.client.post(url, self.comment_text,
+                                    HTTP_AUTHORIZATION=self.auth_header,
+                                    format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_if_first_index_is_int(self):
+        """Test to check if first index is integer."""
+        url = reverse('comment_list', kwargs={'article_id': 1})
+        response = self.client.post(url, self.comment_text1,
+                                    HTTP_AUTHORIZATION=self.auth_header,
+                                    format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_if_last_index_is_int(self):
+        """Test to check if last index is integer."""
+        url = reverse('comment_list', kwargs={'article_id': 1})
+        response = self.client.post(url, self.comment_text2,
+                                    HTTP_AUTHORIZATION=self.auth_header,
+                                    format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_if_last_index_or_first_index_is_integer(self):
+        """Test to check for eror message."""
+        url = reverse('comment_list', kwargs={'article_id': 1})
+        response = self.client.post(url, self.comment_text2,
+                                    HTTP_AUTHORIZATION=self.auth_header,
+                                    format="json")
+        self.assertIn('First index and last index must be integers.',
+                      str(response.data))
+
+    def test_if_text_is_highlighted(self):
+        """Test to check for eror message."""
+        url = reverse('comment_list', kwargs={'article_id': 1})
+        response = self.client.post(url, self.comment_text,
+                                    HTTP_AUTHORIZATION=self.auth_header,
+                                    format="json")
+        self.assertIn('Comment successfully created.',
+                      str(response.data))
+
+    def test_if_last_or_first_index_is_greater_than_body(self):
+        """Test for indices."""
+        url = reverse('comment_list', kwargs={'article_id': 1})
+        response = self.client.post(url, self.comment_text3,
+                                    HTTP_AUTHORIZATION=self.auth_header,
+                                    format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_if_last_or_first_index_is_greater_than_the_body(self):
+        """Test for indices."""
+        url = reverse('comment_list', kwargs={'article_id': 1})
+        response = self.client.post(url, self.comment_text3,
+                                    HTTP_AUTHORIZATION=self.auth_header,
+                                    format="json")
+        self.assertIn('You should  only highlight within the article body.',
+                      str(response.data))
+
+    def test_if_first_index_is_greater_last_index(self):
+        """Test whether first index is greater than last index."""
+        url = reverse('comment_list', kwargs={'article_id': 1})
+        response = self.client.post(url, self.comment_text4,
+                                    HTTP_AUTHORIZATION=self.auth_header,
+                                    format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_iff_first_index_is_greater_last_index(self):
+        """Test whether first index is greater than last index."""
+        url = reverse('comment_list', kwargs={'article_id': 1})
+        response = self.client.post(url, self.comment_text4,
+                                    HTTP_AUTHORIZATION=self.auth_header,
+                                    format="json")
+        self.assertIn('You should  only highlight within the article body.',
+                      str(response.data))

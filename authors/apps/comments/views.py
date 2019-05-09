@@ -34,6 +34,23 @@ class ListCreateComment(APIView):
         article = self.get_article(kwargs['article_id'])
         comment = request.data.get('comment', {})
         comment['article'] = article.id
+        first_index = comment.get('first_index', 0)
+        last_index = comment.get('last_index', 0)
+        if "first_index" in comment and "last_index" in comment:
+            if not isinstance(first_index, int) or not isinstance(last_index, int):
+                return Response(
+                    {"Error": "First index and last index must be integers."},
+                    status.HTTP_400_BAD_REQUEST)
+            if first_index > len(article.body) or last_index > len(article.body):
+                return Response(
+                    {"Error": "You should  only highlight within the article body."},
+                    status.HTTP_400_BAD_REQUEST)
+            if int(first_index) > int(last_index):
+                return Response(
+                    {"Error": "First index should be less than Last index."},
+                    status.HTTP_400_BAD_REQUEST)
+            highlighted_section = article.body[first_index:last_index]
+            comment['highlighted_text'] = highlighted_section
         serializer = CommentSerializer(data=comment)
         serializer.is_valid(raise_exception=True)
         serializer.save(author=self.request.user)
