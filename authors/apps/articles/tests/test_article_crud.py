@@ -23,6 +23,11 @@ class ArticleCrudTest(BaseTestCase):
         response = self.client.post(
             url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        social_links = response.data['article']['social_links']
+        # self.assertIn('https://www.facebook.com/sharer/sharer.php?u=htt', social_links['facebook'])
+        self.assertIn('https://www.facebook.com/', social_links['facebook'])
+        self.assertIn('https://twitter.com/home?status=htt', social_links['twitter'])
+        self.assertIn('mailto:?&subject=Authors%20Haven%', social_links['email'])
 
     def test_user_create_article_blank_title(self):
         """
@@ -113,10 +118,19 @@ class ArticleCrudTest(BaseTestCase):
         """
         Method tests for getting one article with the wrong id
         """
-        url = '/api/articles/4/'
+        url = '/api/articles/4/retrieve/'
         response = self.client.get(
-            url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
+            url, self.create_article_data, format="json")
         self.assertIn("That article is not found", str(response.data))
+
+    def test_get_article(self):
+        """
+        Method tests for getting one article with the wrong id
+        """
+        url = '/api/articles/1/retrieve/'
+        response = self.client.get(
+            url, self.create_article_data, format="json")
+        self.assertEqual(200, response.status_code)
 
     def test_user_create_article_blank_body(self):
         """

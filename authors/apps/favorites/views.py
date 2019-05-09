@@ -65,6 +65,7 @@ class FavoritesView(APIView):
         fav_articles = []
         for fav in favs:
             article = Article.objects.get(pk=fav.article.pk)
-            article = ArticleSerializer(article, many=False)
+            article = ArticleSerializer(article, many=False,
+                                        context={'request': request})
             fav_articles.append(article.data)
         return Response(fav_articles,status=status.HTTP_200_OK,)
