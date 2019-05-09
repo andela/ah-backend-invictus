@@ -58,6 +58,13 @@ class BaseTestCase(APITestCase):
             body='There was no TIA chant.',
             author=self.user
         )
+        self.article2 = Article.objects.create(
+            id=2,
+            title='Town hall at Andela',
+            description='There was lots of fun',
+            body='There was no TIA chant.',
+            author=self.user
+        )
         self.comment_data = Comment.objects.create(
             id=100,
             body="Heheheheheh ehehehehe.....",

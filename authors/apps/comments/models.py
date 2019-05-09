@@ -1,5 +1,6 @@
 from django.db import models
 
+from simple_history.models import HistoricalRecords
 from authors.apps.authentication.models import User
 from authors.apps.articles.models import Article
 
@@ -17,6 +18,7 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     likes_counter = models.IntegerField(default=0)
+    history = HistoricalRecords()
 
     def __str__(self):
         """
