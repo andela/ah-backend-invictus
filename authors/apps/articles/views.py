@@ -18,6 +18,7 @@ from .models import Article, Like_Dislike, Report
 from .serializers import ArticleSerializer, ReportSerializer
 from .permissions import IsOwnerOrReadOnly
 from .pagination import ArticlePageNumberPagination
+from .readtime_engine import ArticleTimeEngine
 
 
 class ListArticles(generics.ListAPIView):
@@ -52,8 +53,10 @@ class CreateArticles(generics.CreateAPIView):
         ArticleTagView.create_tag(ArticleTagView, request.data.get("tagList"))
         serializer = ArticleSerializer(data=data, context={'request': request})
         serializer.is_valid(raise_exception=True)
+        read_time = ArticleTimeEngine(data['body'])
         save_serialiser = serializer.save(
-            author=self.request.user
+            author=self.request.user,
+            read_time = read_time.read_time()
         )
         for tag in data['tagList']:
             save_serialiser.tagList.add(

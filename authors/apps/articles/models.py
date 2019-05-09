@@ -24,6 +24,7 @@ class Article(models.Model):
     report_count = models.IntegerField(default=0)
     favorited = models.BooleanField(default=False)
     favorite_count = models.IntegerField(default=0)
+    read_time = models.TextField(default="less than a minute")
     tagList = models.ManyToManyField(ArticleTag, related_name='articles')
     author = models.ForeignKey(
         User, to_field='username', on_delete=models.CASCADE, null=False)
