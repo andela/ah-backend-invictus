@@ -50,6 +50,23 @@ class BaseTestCase(APITestCase):
         super_test_token = self.super_login_response.data['token']
         self.super_auth_header = 'Bearer {}'.format(super_test_token)
 
+        self.user3 = User.objects.create_superuser(
+            username="edina", email="edina@gmail.com", password="Edina1234")
+        setattr(self.user3, 'email_verified', True)
+        self.user3.save()
+
+        self.edna_login_data = {
+            "user": {
+                "email": "edina@gmail.com",
+                "password": "Edina1234"
+            }
+        }
+
+        self.edna_login_response = self.client.post(
+            self.login_url, self.edna_login_data, format='json')
+        edna_test_token = self.edna_login_response.data['token']
+        self.edna_auth_header = 'Bearer {}'.format(edna_test_token)
+
         self.create_article_data = {
             "title": "Fresh kid wonders on stage at lugogo",
             "description": "he wows the kids",

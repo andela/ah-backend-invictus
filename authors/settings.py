@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'authors.apps.rate_article',
     'authors.apps.article_tags',
     'authors.apps.bookmarks',
+    'authors.apps.notifications'
 ]
 
 MIDDLEWARE = [

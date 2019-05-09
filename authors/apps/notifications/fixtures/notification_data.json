@@ -1,0 +1,41 @@
+[
+    {
+        "model": "authentication.user",
+        "pk": 2,
+        "fields": {
+            "username": "ednan",
+            "email": "3dnamargarita@gmail.com",
+            "email_verified": true,
+            "password": "pbkdf2_sha256$120000$hnVeYt1oA4Z9$F64DTDJ9ChmjxhMvZbJm0WGYmzpqg2+7oib+ZE5MV8E=",
+            "created_at": "2013-03-23 00:03:00",
+            "updated_at": "2013-03-23 01:02:00"
+        }
+    },
+    {
+        "model": "articles.article",
+        "pk": 1,
+        "fields": {
+            "title": "Town hall at Andela",
+            "description": "There was lots of fun",
+            "body": "There was no TIA chant.",
+            "slug": "town-hall-at-andela",
+            "created_at": "2019-05-02T05:03:36.898328Z",
+            "updated_at": "2019-05-02T05:03:36.898341Z",
+            "favorited": false,
+            "favorite_count": 0,
+            "author": "ednan"
+        }
+    },
+    {
+        "model": "authentication.user",
+        "pk": 1,
+        "fields": {
+            "username": "joell",
+            "email": "joell@gmail.com",
+            "email_verified": true,
+            "password": "pbkdf2_sha256$120000$hnVeYt1oA4Z9$F64DTDJ9ChmjxhMvZbJm0WGYmzpqg2+7oib+ZE5MV8E=",
+            "created_at": "2013-03-23 00:03:00",
+            "updated_at": "2013-03-23 01:02:00"
+        }
+    }
+]
