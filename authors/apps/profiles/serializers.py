@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from authors.apps.profiles.models import UserProfile
+from authors.apps.profiles.models import UserProfile, Follow
 from .models import User
 import re
 
@@ -12,6 +12,7 @@ class FetchUserProfileSerializer(serializers.ModelSerializer):
 
 class UpdateProfileSerializer(serializers.ModelSerializer):
     username = serializers.ReadOnlyField(source='user.username')
+    following = serializers.SerializerMethodField()
     class Meta:
         model = UserProfile
         fields = (
@@ -19,8 +20,17 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
             'lastname',
             'username',
             'image',
-            'bio'
+            'bio',
+            'following'
         )
+
+    def get_following(self, instance):
+        current_user = self.context['request'].user
+        following = False
+        if Follow.objects.filter(followed=instance.user,
+                                 follower=current_user).exists():
+            following = True
+        return following
 
     def validate_username(self, username):
         username1 =  User.objects.filter(username=username)
