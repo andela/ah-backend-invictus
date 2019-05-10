@@ -43,7 +43,20 @@
       },
       "DEPLOY_ENV": {
         "required": true
+      },
+      "APP_ID": {
+        "required": true
+      },
+      "KEY": {
+        "required": true
+      },
+      "SECRET": {
+        "required": true
+      },
+      "CLUSTER": {
+        "required": true
       }
+      
   },
   "formation": {},
   "addons": [

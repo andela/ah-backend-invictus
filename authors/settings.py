@@ -15,6 +15,9 @@ import dj_database_url
 from decouple import config
 import django_heroku
 
+from pusher import Pusher
+#import pusher to deal with push notifications
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -58,7 +61,8 @@ INSTALLED_APPS = [
     'authors.apps.rate_article',
     'authors.apps.article_tags',
     'authors.apps.bookmarks',
-    'authors.apps.notifications'
+    'authors.apps.notifications',
+    'authors.apps.pushnotifications',
 ]
 
 MIDDLEWARE = [
@@ -212,3 +216,11 @@ EMAIL_USE_TLS = True
 
 TWITTER_CONSUMER_KEY = os.getenv('TWITTER_CONSUMER_KEY')
 TWITTER_CONSUMER_SECRET = os.getenv('TWITTER_CONSUMER_SECRET')
+
+#instantiate pusher with keys got from the .env file
+pusher = Pusher(
+    app_id=os.getenv('APP_ID'),
+    key=os.getenv('KEY'),
+    secret=os.getenv('SECRET'),
+    cluster=os.getenv('CLUSTER')
+    )
