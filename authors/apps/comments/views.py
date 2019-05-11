@@ -6,7 +6,8 @@ from rest_framework.exceptions import NotFound
 
 from authors.apps.articles.models import Article
 from .models import Comment, Likes
-from .serializers import CommentSerializer
+from .serializers import CommentSerializer, CommentEditHistorySerializer
+from .utils import get_article, get_comment
 
 
 class ListCreateComment(APIView):
@@ -175,3 +176,23 @@ class Like(APIView):
             return Response({"message": "Your like has been cancelled"},
                             status=status.HTTP_200_OK)
 
+
+class CommentEditHistoryAPIView(APIView):
+    """
+    GET History/
+    Return comment updates history by a given user
+    on a particular article.
+    """
+
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request, **kwargs):
+        """
+        Return all comment update history.
+        """
+        get_article(kwargs['article_id'])
+        comment = get_comment(kwargs['pk'])
+        data = comment.history.all()
+        serializer = CommentEditHistorySerializer(data, many=True)
+        return Response({
+            "update_history": serializer.data}, status=status.HTTP_200_OK)
