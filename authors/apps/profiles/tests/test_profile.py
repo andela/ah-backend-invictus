@@ -6,10 +6,15 @@ from .base import BaseTestCase
 class ProfileTestCase(BaseTestCase):
     """Testcases for the user profile views."""
 
-
     def test_lastname_in_profile_returns_string(self):
         """method to test whether lastname is a string"""
         self.assertTrue(self.profile["profile"]["lastname"], str(self.profile))
+
+    def test_get_user_profiles(self):
+        """Test get all user profiles."""
+        url = reverse('list_profiles')
+        response = self.client.get(url, HTTP_AUTHORIZATION=self.auth_header)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_userprofile(self):
         """Test get user profile."""
