@@ -28,3 +28,12 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_profile(sender, instance, **kwargs):
     instance.userprofile.save()
 
+
+class Follow(models.Model):
+    follower = models.ForeignKey(User,
+                                 related_name="follower",
+                                 on_delete=models.CASCADE,
+                                 default=False)
+    followed = models.ForeignKey(User, related_name="followed",
+                                 on_delete=models.CASCADE,
+                                 default=False)
