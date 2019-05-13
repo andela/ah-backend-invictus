@@ -73,7 +73,7 @@ class BaseTestCase(APITestCase):
         )
         self.comment = {
             "comment": {
-                "body": "His name was my name too."
+                "body": "His name was my name too.",
             }
         }
         self.comment2 = {
@@ -86,6 +86,48 @@ class BaseTestCase(APITestCase):
                 "body": "His name was my name too...XYZ"
             }
         }
+        self.comment_text = {
+            "comment": {
+                "body": "This is sample text.",
+                "first_index": 1,
+                "last_index": 7,
+                "highlighted_text": "This is "
+            }
+        }
+        self.comment_text1 = {
+            "comment": {
+                "body": "This is sample text.",
+                "first_index": "1",
+                "last_index": 7,
+                "highlighted_text": "This is "
+            }
+        }
+        self.comment_text2 = {
+            "comment": {
+                "body": "This is sample text.",
+                "first_index": 1,
+                "last_index": "7",
+                "highlighted_text": "This is "
+            }
+        }
+        self.comment_text3 = {
+            "comment": {
+                "body": "This is sample text.",
+                "first_index": 100,
+                "last_index": 200,
+                "highlighted_text": "This is sample text."
+            }
+        }
+        self.comment_text4 = {
+            "comment": {
+                "body": "This is sample text.",
+                "first_index": 200,
+                "last_index": 100,
+                "highlighted_text": "This is sample text."
+            }
+        }
+
+
         self.user2 = User.objects.create_user(
             username='test2', email='test2@example.com', password='12345678'
         )
