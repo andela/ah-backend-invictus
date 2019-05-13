@@ -11,6 +11,7 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_yasg.utils import swagger_auto_schema
 
 import facebook
 import twitter
@@ -36,6 +37,12 @@ class RegistrationAPIView(APIView):
     renderer_classes = (UserJSONRenderer,)
     serializer_class = RegistrationSerializer
 
+    @swagger_auto_schema(
+        operation_description="Regester a new User.",
+        operation_id="Sign up as a new user",
+        request_body=serializer_class,
+        responses={201: serializer_class(many=False), 400: "BAD REQUEST"},
+    )
     def post(self, request):
         user = request.data.get('user', {})
         # The create serializer, validate serializer, save serializer pattern
@@ -72,6 +79,12 @@ class LoginAPIView(APIView):
     renderer_classes = (UserJSONRenderer,)
     serializer_class = LoginSerializer
 
+    @swagger_auto_schema(
+        operation_description="Login a User.",
+        operation_id="Login a user",
+        request_body=serializer_class,
+        responses={200: serializer_class(many=False), 400: "BAD REQUEST"},
+    )
     def post(self, request):
         user = request.data.get('user', {})
         # Notice here that we do not call `serializer.save()` like we did for
@@ -151,6 +164,7 @@ class AccountActivationAPIView(APIView):
             "error": "Activation link is invalid.",
         }, status=status.HTTP_400_BAD_REQUEST)
 
+
 class PasswordReset(APIView):
     # Allow any user (authenticated or not) to hit this endpoint.
     permission_classes = (AllowAny,)
@@ -158,6 +172,12 @@ class PasswordReset(APIView):
     renderer_classes = (UserJSONRenderer,)
     serializer_class = ResetPasswordTokenSerializer
 
+    @swagger_auto_schema(
+        operation_description="Reset password.",
+        operation_id="Resest password using your email address",
+        request_body=serializer_class,
+        responses={200: serializer_class(many=False), 400: "BAD REQUEST"},
+    )
     def post(self, request):
         # request to reset email
 
@@ -194,6 +214,12 @@ class PasswordResetToken(APIView):
     authentication_classes = ()
     serializer_class = ResetPasswordSerializer
 
+    @swagger_auto_schema(
+        operation_description="Password reset.",
+        operation_id="Password reset.",
+        request_body=serializer_class,
+        responses={200: serializer_class(many=False), 400: "BAD REQUEST"},
+    )
     def post(self, request, token):
         # reset password
 
@@ -235,6 +261,12 @@ class FacebookAuthenticationAPIView(APIView):
     authentication_classes = ()
     serializer_class = SocialAuthenticationSerializer
 
+    @swagger_auto_schema(
+        operation_description="Facebook social authentication.",
+        operation_id="facebook social authentication.",
+        request_body=serializer_class,
+        responses={200: serializer_class(many=False), 400: "BAD REQUEST"},
+    )
     def post(self, request, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -264,6 +296,12 @@ class GoogleAuthenticationAPIView(APIView):
     authentication_classes = ()
     serializer_class = SocialAuthenticationSerializer
 
+    @swagger_auto_schema(
+        operation_description="Google social authentication.",
+        operation_id="Google social authentication.",
+        request_body=serializer_class,
+        responses={200: serializer_class(many=False), 400: "BAD REQUEST"},
+    )
     def post(self, request, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -290,6 +328,12 @@ class TwitterAuthenticationAPIView(APIView):
     authentication_classes = ()
     serializer_class = TwitterAuthenticationSerializer
 
+    @swagger_auto_schema(
+        operation_description="Twitter social authentication.",
+        operation_id="Twitter social authentication.",
+        request_body=serializer_class,
+        responses={200: serializer_class(many=False), 400: "BAD REQUEST"},
+    )
     def post(self, request, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)

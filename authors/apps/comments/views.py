@@ -8,6 +8,7 @@ from authors.apps.articles.models import Article
 from .models import Comment, Likes
 from .serializers import CommentSerializer, CommentEditHistorySerializer
 from .utils import get_article, get_comment
+from drf_yasg.utils import swagger_auto_schema
 
 
 class ListCreateComment(APIView):
@@ -27,6 +28,12 @@ class ListCreateComment(APIView):
         except Article.DoesNotExist:
             raise NotFound({"error": "Article not found."})
 
+    @swagger_auto_schema(
+        operation_description="Add a comment to an article.",
+        operation_id="Add a comment to an article.",
+        request_body=serializer_class,
+        responses={200: serializer_class(many=False), 400: "BAD REQUEST"},
+    )
     def post(self, request, **kwargs):
         """
         This method adds a comment to a particular article.

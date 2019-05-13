@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 import dj_database_url
 from decouple import config
+import django_heroku
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'simple_history',
+    'drf_yasg',
 
     'authors.apps.authentication',
     'authors.apps.core',
@@ -55,7 +57,7 @@ INSTALLED_APPS = [
     'authors.apps.favorites',
     'authors.apps.rate_article',
     'authors.apps.article_tags',
-    'authors.apps.bookmarks'
+    'authors.apps.bookmarks',
 ]
 
 MIDDLEWARE = [
@@ -128,6 +130,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'api_key': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    },
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -175,6 +187,8 @@ REST_FRAMEWORK = {
 }
 
 # Heroku deploy settings
+if os.environ.get("DEPLOY_ENV", "None") == "heroku":
+    django_heroku.settings(locals())
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(PROJECT_ROOT, "staticfiles")
