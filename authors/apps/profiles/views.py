@@ -9,21 +9,21 @@ from rest_framework.exceptions import NotFound
 from .renderers import ProfileJSONRenderer
 from .models import UserProfile, Follow
 from .models import User
+from .models import UserProfile
 
 
-# Create your views here.
 class UserProfiles(ListAPIView):
 
-    permission_classes = (AllowAny,)
+    permission_classes = (AllowAny, IsAuthenticated)
     queryset = UserProfile.objects.all()
-    serializer_class = FetchUserProfileSerializer, UpdateProfileSerializer
+    serializer_class = FetchUserProfileSerializer
 
     def list(self, request, format=None):
-        serializer = self.serializer_class(
-            self.get_queryset(),
-            many=True
-        )
-        return Response(data=dict(profiles=serializer.data),
+        """
+        Return a list of user profiles.
+        """
+        serializer = self.serializer_class(self.get_queryset(), many=True)
+        return Response({"profiles": serializer.data},
                         status=status.HTTP_200_OK)
 
 
@@ -50,7 +50,7 @@ class Updateprofile(RetrieveUpdateAPIView):
             return Response(serializer.data)
         return Response(
             data={'message':
-                    'You have no permissions to edit others profile.'},
+                   'You have no permissions to edit others profile.'},
             status=status.HTTP_403_FORBIDDEN
         )
 

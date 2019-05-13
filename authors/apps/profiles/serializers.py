@@ -5,6 +5,10 @@ import re
 
 
 class FetchUserProfileSerializer(serializers.ModelSerializer):
+    """
+    This class maps the `UserProfile` model instance
+    into JSON format.
+    """
     class Meta:
         model = UserProfile
         fields = '__all__'
@@ -58,5 +62,3 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Lastname should be longer than 4 characters")
         return lastname
-
-
