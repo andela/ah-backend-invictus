@@ -15,6 +15,23 @@ Including another URLconf
 """
 from django.urls import include, path
 from django.contrib import admin
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Author's Haven For Team Invictus",
+      default_version='v1',
+      description="Author's Haven is a community of like minded authors to \
+        foster inspiration and innovation by leveraging the modern web",
+      license=openapi.License(name="Andela License"),
+   ),
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+   authentication_classes=(),
+)
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,5 +42,8 @@ urlpatterns = [
     path('api/articles/', include('authors.apps.favorites.urls')),
     path('api/', include('authors.apps.rate_article.urls')),
     path('api/', include('authors.apps.article_tags.urls')),
-    path('api/', include('authors.apps.bookmarks.urls'))
+    path('api/', include('authors.apps.bookmarks.urls')),
+    path('docs/', schema_view.with_ui('swagger', cache_timeout=0),
+         name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]

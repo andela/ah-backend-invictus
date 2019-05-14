@@ -40,6 +40,9 @@
       },
       "TWITTER_CONSUMER_SECRET": {
           "required": true
+      },
+      "DEPLOY_ENV": {
+        "required": true
       }
   },
   "formation": {},

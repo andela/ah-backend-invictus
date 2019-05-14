@@ -19,6 +19,7 @@ from .serializers import ArticleSerializer, ReportSerializer
 from .permissions import IsOwnerOrReadOnly
 from .pagination import ArticlePageNumberPagination
 from .readtime_engine import ArticleTimeEngine
+from drf_yasg.utils import swagger_auto_schema
 
 
 class ListArticles(generics.ListAPIView):
@@ -249,6 +250,7 @@ class Dislike(APIView):
 class Reports(APIView):
     """POST articles/:id/report/ to report an article"""
     permission_classes = (IsAuthenticated, )
+    serializer_class = ReportSerializer
 
     def get_article_object(self, article_id):
         """ Method to search for an article object by its id"""
@@ -264,6 +266,12 @@ class Reports(APIView):
         except Report.DoesNotExist:
             return None
 
+    @swagger_auto_schema(
+        operation_description="Report an article.",
+        operation_id="Report an article.",
+        request_body=serializer_class,
+        responses={200: serializer_class(many=False), 400: "BAD REQUEST"},
+    )
     def post(self, request, **kwargs):
         """ Method to post a report"""
         article = self.get_article_object(kwargs['article_id'])

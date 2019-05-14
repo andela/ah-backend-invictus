@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import NotFound
 from authors.apps.articles.models import Article
 from authors.apps.rate_article.models import Rate
+from drf_yasg.utils import swagger_auto_schema
 
 
 class CreateArticleRating(APIView):
@@ -24,6 +25,12 @@ class CreateArticleRating(APIView):
         except Article.DoesNotExist:
             raise NotFound("article does not exists")
 
+    @swagger_auto_schema(
+        operation_description="Add ratings to an article.",
+        operation_id="Add ratings to an article.",
+        request_body=serializer_class,
+        responses={200: serializer_class(many=False), 400: "BAD REQUEST"},
+    )
     def post(self, request, **kwargs):
         """ create article rating"""
         #gets article
