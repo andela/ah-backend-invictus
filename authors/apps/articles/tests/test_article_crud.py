@@ -12,8 +12,8 @@ class ArticleCrudTest(BaseTestCase):
     Class Test Case for Testing article crud functionality
     """
     # Initialize fixture for the class Test Case
-    fixtures = ['authors/apps/articles/fixtures/article.json',
-                'authors/apps/articles/fixtures/user.json']
+    fixtures = ['authors/apps/articles/fixtures/user.json']
+
 
     def test_user_create_article(self):
         """
@@ -74,12 +74,15 @@ class ArticleCrudTest(BaseTestCase):
         url = reverse('articles-list-create')
         response = self.client.post(
             url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
-        self.assertEqual(Article.objects.count(), 2)
+        self.assertEqual(Article.objects.count(), 1)
 
     def test_get_all_articles(self):
         """
         Method tests for getting all articles
         """
+        url = reverse('articles-list-create')
+        response = self.client.post(
+            url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
         url = '/api/articles/all/'
         response = self.client.get(
             url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
@@ -89,7 +92,11 @@ class ArticleCrudTest(BaseTestCase):
         """
         Method tests for getting one article
         """
-        url = '/api/articles/1/'
+        url = reverse('articles-list-create')
+        response = self.client.post(
+            url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        article_id = response.data['article']['id']
+        url = '/api/articles/{}/'.format(article_id)
         response = self.client.get(
             url, HTTP_AUTHORIZATION=self.auth_header, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -98,9 +105,13 @@ class ArticleCrudTest(BaseTestCase):
         """
         Method tests for permision for updating one article
         """
-        url = '/api/articles/1/'
+        url = reverse('articles-list-create')
+        response = self.client.post(
+            url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        article_id = response.data['article']['id']
+        url = '/api/articles/{}/'.format(article_id)
         response = self.client.put(
-            url, self.update_article, HTTP_AUTHORIZATION=self.auth_header, format="json")
+            url, self.update_article, HTTP_AUTHORIZATION=self.edna_auth_header, format="json")
         self.assertIn(
             "You do not have permission to perform this action", str(response.data))
 
@@ -108,9 +119,13 @@ class ArticleCrudTest(BaseTestCase):
         """
         Method tests for permision for deleting one article
         """
-        url = '/api/articles/1/'
+        url = reverse('articles-list-create')
+        response = self.client.post(
+            url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        article_id = response.data['article']['id']
+        url = '/api/articles/{}/'.format(article_id)
         response = self.client.delete(
-            url, HTTP_AUTHORIZATION=self.auth_header, format="json")
+            url, self.update_article, HTTP_AUTHORIZATION=self.edna_auth_header, format="json")
         self.assertEqual(
             'You do not have permision to delete the article',  str(response.data))
 
@@ -122,15 +137,6 @@ class ArticleCrudTest(BaseTestCase):
         response = self.client.get(
             url, self.create_article_data, format="json")
         self.assertIn("That article is not found", str(response.data))
-
-    def test_get_article(self):
-        """
-        Method tests for getting one article with the wrong id
-        """
-        url = '/api/articles/1/retrieve/'
-        response = self.client.get(
-            url, self.create_article_data, format="json")
-        self.assertEqual(200, response.status_code)
 
     def test_user_create_article_blank_body(self):
         """

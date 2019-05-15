@@ -182,8 +182,10 @@ class Like(APIView):
                 return Response(
                     {"message": "Your like has been revoked"}, status=status.HTTP_200_OK,)
             elif my_dislike_already:
-                Like_Dislike.objects.filter(
-                    article_id=kwargs['article_id'], reviewer_id=request.user.username).update(like_or_dislike=1)
+                like_dislike = Like_Dislike.objects.filter(
+                    article_id=kwargs['article_id'], reviewer_id=request.user.username).first()
+                like_dislike.like_or_dislike = 1
+                like_dislike.save()
                 Article.objects.filter(
                     id=kwargs['article_id']).update(
                         likes_count=article.likes_count + 1, dislikes_count=article.dislikes_count - 1)
@@ -239,8 +241,10 @@ class Dislike(APIView):
                 return Response(
                     {"message": "Your dislike has been revoked"}, status=status.HTTP_200_OK,)
             elif my_like_already:
-                Like_Dislike.objects.filter(
-                    article_id=kwargs['article_id'], reviewer_id=request.user.username).update(like_or_dislike=-1)
+                like_dislike = Like_Dislike.objects.filter(
+                    article_id=kwargs['article_id'], reviewer_id=request.user.username).first()
+                like_dislike.like_or_dislike = -1
+                like_dislike.save()
                 Article.objects.filter(
                     id=kwargs['article_id']).update(
                         likes_count=article.likes_count - 1, dislikes_count=article.dislikes_count + 1)
