@@ -4,6 +4,8 @@ from django.urls import reverse
 from authors.apps.article_tags.models import ArticleTag
 from .models import Article, Report
 from .validations import ValidateArticleCreation
+from authors.apps.authentication.models import User
+from .reading_stats import UserReads, UserViews
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -110,3 +112,28 @@ class ReportSerializer(serializers.ModelSerializer):
         """class for returning our fields."""
         model = Report
         fields = '__all__'
+
+
+class UserReadsSerializer(serializers.Serializer):
+    """
+    Serializer class for user reads
+    """
+    class Meta:
+        model = UserReads
+        fields = [
+            'user',
+            'article',
+            'read_on'
+            ]
+
+
+class ReadingStatsSerializer(serializers.Serializer):
+    """
+    Serializer class for readingstats of an article
+    """
+    class Meta:
+        model = User
+        fields = [
+           'username',
+           'email'
+        ]

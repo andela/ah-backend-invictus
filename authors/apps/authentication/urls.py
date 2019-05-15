@@ -3,7 +3,7 @@ from .views import (
     LoginAPIView, RegistrationAPIView, UserRetrieveUpdateAPIView,
     AccountActivationAPIView, PasswordReset, PasswordResetToken,
     FacebookAuthenticationAPIView, GoogleAuthenticationAPIView,
-    TwitterAuthenticationAPIView
+    TwitterAuthenticationAPIView,
 )
 
 
@@ -21,5 +21,5 @@ urlpatterns = [
      path('social_auth/google/', GoogleAuthenticationAPIView.as_view(),
           name='google_auth'),
      path('social_auth/twitter/', TwitterAuthenticationAPIView.as_view(),
-          name='twitter_auth')
+          name='twitter_auth'),
 ]

@@ -15,11 +15,14 @@ from authors.apps.article_tags.models import ArticleTag
 from .article_filter import ArticleFilter
 from .renderer import ArticleJSONRenderer
 from .models import Article, Like_Dislike, Report
-from .serializers import ArticleSerializer, ReportSerializer
+from .serializers import ArticleSerializer, ReportSerializer,\
+    UserReadsSerializer, ReadingStatsSerializer
 from .permissions import IsOwnerOrReadOnly
 from .pagination import ArticlePageNumberPagination
 from .readtime_engine import ArticleTimeEngine
 from drf_yasg.utils import swagger_auto_schema
+from .reading_stats import UserReads, UserViews
+import datetime
 
 
 class ListArticles(generics.ListAPIView):
@@ -57,7 +60,7 @@ class CreateArticles(generics.CreateAPIView):
         read_time = ArticleTimeEngine(data['body'])
         save_serialiser = serializer.save(
             author=self.request.user,
-            read_time = read_time.read_time()
+            read_time=read_time.read_time()
         )
         for tag in data['tagList']:
             save_serialiser.tagList.add(
@@ -77,7 +80,6 @@ class RetrieveArticle(APIView):
     def get(self, request, pk, **kwargs):
         user = request.user
         queryset = Article.objects.all().filter(id=pk)
-
         if queryset:
             serializer = ArticleSerializer(
                 queryset, many=True, context={'request': request})
@@ -127,6 +129,21 @@ class UpdateDestroyArticle(generics.RetrieveUpdateDestroyAPIView):
             return Response("You do not have permision to delete the article")
         return Response(self.err_message, status=status.HTTP_404_NOT_FOUND)
 
+    def get(self, request, *args, **kwargs):
+        """
+        Method for getting an article and adding a view
+        """
+        instance = self.get_object()
+        user = request.user
+        try:
+            view = UserViews.objects.get(user=user.id, article=instance.id)
+        except:
+            if instance.author.id != user.id:
+                view = UserViews(user=user, article=instance)
+                view.save()
+                view = UserViews.objects.all()
+        return self.retrieve(request, *args, **kwargs)
+
 
 class Like(APIView):
     """
@@ -169,7 +186,7 @@ class Like(APIView):
             if my_choice_reset:
                 Like_Dislike.objects.filter(
                     article_id=kwargs['article_id'],
-                     reviewer_id=request.user.username).update(like_or_dislike=1)
+                    reviewer_id=request.user.username).update(like_or_dislike=1)
                 Article.objects.filter(
                     id=kwargs['article_id']).update(
                     likes_count=article.likes_count + 1)
@@ -313,4 +330,172 @@ class ReportView(APIView):
             return Response({
                 "reports": reported}, status.HTTP_200_OK)
         return Response(
-            {"error": "You do not have permission to view the reported articles"}, status.HTTP_403_FORBIDDEN)
+            {"error": "You do not have permission to view the reported articles"},
+            status.HTTP_403_FORBIDDEN)
+
+
+class AddRead(generics.CreateAPIView):
+    """
+    View class for registering a user read
+    """
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserReadsSerializer
+
+    def create(self, request, **kwargs):
+        """
+        Method for adding a user read
+        """
+        user = request.user
+        article_id = request.data.get('article_id')
+        if not article_id:
+            return Response({'error': 'You must provide an article id to proceed'},
+                            status.HTTP_400_BAD_REQUEST)
+        try:
+            read = UserReads.objects.get(article=article_id, user=user.id)
+            if read:
+                return Response({"message": "User read exists"},
+                                status.HTTP_400_BAD_REQUEST)
+        except:
+            try:
+                article = Article.objects.get(id=article_id)
+                if article.author.id != user.id:
+                    read = UserReads(user=user, article=article)
+                    read.save()
+                    return Response({'message': "User read recorded"},
+                                    status.HTTP_201_CREATED)
+            except:
+                return Response({'error': 'Article doesnot exist'},
+                                status.HTTP_404_NOT_FOUND)
+        return Response({'error': 'Author can not read their own article'},
+                        status.HTTP_400_BAD_REQUEST)
+
+
+class ReadingStats(generics.RetrieveAPIView):
+    """
+    View class user reading statistics
+    """
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ReadingStatsSerializer
+
+    def read_ratio(self, reads, views):
+        """
+        Method computes the read ratio of an article
+        """
+        try:
+            ratio = (reads/views)*100
+            return round(ratio)
+        except:
+            return 0
+
+    def stats_in_last_30_days(self, obj, today, days, viewed, stats_for):
+        """
+        method to return records the were recorded in the past 30 days
+        """
+        days = datetime.timedelta(days=days)
+        start_date = today - days
+        if stats_for == "views":
+            return obj.objects.filter(
+                viewed_on__range=(start_date, today), article=viewed)
+        elif stats_for == "reads":
+            return obj.objects.filter(
+                read_on__range=(start_date, today), article=viewed)
+        elif stats_for == "likes":
+            return obj.objects.filter(
+                date_liked__range=(start_date, today), article=viewed,
+                like_or_dislike=1)
+        elif stats_for == "dislikes":
+            return obj.objects.filter(
+                date_liked__range=(start_date, today), article=viewed,
+                like_or_dislike=-1)
+
+    def total_views(self, article):
+        """
+        Method returns total number of views for an article
+        """
+        len_of_views = len(UserViews.objects.filter(article=article.id))
+        return len_of_views
+
+    def total_reads(self, article):
+        """
+        Method returns the total number of reads for an 
+        article
+        """
+        len_of_reads = len(UserReads.objects.filter(article=article.id))
+        return len_of_reads
+
+    def views_30_days(self, article, today):
+        """
+        Method returns the number of views in the last 30 days
+        """
+        views = len(self.stats_in_last_30_days(
+            UserViews, today, 30, article.id, 'views'
+        ))
+        return views
+
+    def reads_30_days(self, article, today):
+        """
+        Method returns the number of reads in the last 30 days
+        """
+        reads = len(self.stats_in_last_30_days(
+                    UserReads, today, 30, article.id, 'reads'))
+        return reads
+
+    def likes_30_days(self, article, today):
+        """
+        Method returns the number of likes in last 30 days
+        """
+        likes = len(self.stats_in_last_30_days(Like_Dislike,
+                                               today, 30, article.id, 'likes'
+                                               ))
+        return likes
+
+    def dislikes_30_days(self, article, today):
+        """
+        Method returns the number of dislikes in the last 
+        30 days
+        """
+        dislikes = len(self.stats_in_last_30_days(Like_Dislike,
+                                                  today, 30, article.id, 'dislikes'
+                                                  ))
+        return dislikes
+
+    def get(self, request, *args, **kwargs):
+        """
+        Method gets statistics for reading stats for an 
+        author's articles
+        """
+        # compute article statistics
+        article_list = []
+        today = datetime.datetime.now()
+        user_articles = Article.objects.filter(author=request.user)
+        for user_article in user_articles:
+            viewed_articles = UserViews.objects.filter(
+                article=user_article.id)
+            article_list.append({'article_id': user_article.id,
+                                 'article_title': user_article.title,
+                                 'total_views': self.total_views(
+                                     user_article
+                                 ),
+                                 'total_reads': self.total_reads(
+                                     user_article
+                                 ),
+                                 'read_ratio': self.read_ratio(
+                                     len(UserReads.objects.filter(
+                                         article=user_article.id
+                                     )),
+                                     len(UserViews.objects.filter(
+                                         article=user_article.id
+                                     ))),
+                                 'views_in_last_30_days': self.views_30_days(
+                                     user_article, today
+                                 ),
+                                 'reads_in_last_30_days': self.reads_30_days(
+                                     user_article, today
+                                 ),
+                                 'likes_in_last_30_days': self.likes_30_days(
+                                     user_article, today
+                                 ),
+                                 'dislikes_in_last_30_days': self.dislikes_30_days(
+                                     user_article, today
+                                 )})
+        return Response({"reading_statistics": article_list})
