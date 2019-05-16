@@ -11,11 +11,7 @@ class GetBookMarks:
 
     @staticmethod
     def get_bookmarks(req):
-        try:
-            bookmarklist = Bookmark.objects.all()
-            return bookmarklist
-        except Bookmark.DoesNotExist:
-            return None
+        return Bookmark.objects.all()
 
 
 class CreateBookmark(CreateAPIView):

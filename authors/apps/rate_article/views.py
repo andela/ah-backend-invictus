@@ -60,13 +60,15 @@ class CreateArticleRating(APIView):
     def get(self, request, **kwargs):
         """ gets average of a single article rating"""
         article = self.get_object(article_id=kwargs['article_id'])
-        queryset = Rate.objects.all().filter(article_id=kwargs['article_id'])
+        queryset = Rate.objects.filter(article=article)
         if queryset.exists():
             article_average = queryset.aggregate(Avg('rating'))
             return Response({"average": {"article rating": article_average.get(
                             'rating__avg'), "article": article.slug}},
                             status=status.HTTP_200_OK)
-        return Response({"error": "Rating for article doesnot exists"})
+        else:
+            return Response({"error": "Rating for article doesnot exists"},
+                            status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, **kwargs):
         data = {}

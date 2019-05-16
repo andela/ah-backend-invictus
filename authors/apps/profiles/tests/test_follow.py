@@ -12,6 +12,12 @@ class FollowTestCase(BaseTestCase):
         response = self.client.post(url, HTTP_AUTHORIZATION=self.auth_header)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_follow_your_self(self):
+        """Test start following self."""
+        url = reverse('follow', kwargs={'username': 'test1'})
+        response = self.client.post(url, HTTP_AUTHORIZATION=self.auth_header)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_post_follow_already_followed_user(self):
         """Test start following a user you already follow."""
         url = reverse('follow', kwargs={'username': 'test2'})

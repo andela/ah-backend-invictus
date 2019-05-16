@@ -118,19 +118,6 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def update(self, request, *args, **kwargs):
-        serializer_data = request.data.get('user', {})
-
-        # Here is that serialize, validate, save pattern we talked about
-        # before.
-        serializer = self.serializer_class(
-            request.user, data=serializer_data, partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 class AccountActivationAPIView(APIView):
     """
@@ -141,12 +128,8 @@ class AccountActivationAPIView(APIView):
     serializer_class = UserSerializer
 
     def get(self, request, uid):
-        try:
-            username = urlsafe_base64_decode(uid).decode('utf-8')
-            user = User.objects.filter(username=username).first()
-        except User.DoesNotExist:
-            message = "User not found."
-            return exceptions.AuthenticationFailed(message)
+        username = urlsafe_base64_decode(uid).decode('utf-8')
+        user = User.objects.filter(username=username).first()
         if user is not None and not user.email_verified:
             user.email_verified = True
             user.save()
