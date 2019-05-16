@@ -51,6 +51,18 @@ class UserVerificationTestCase(BaseTestCase):
         response = self.client.get(activation_url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_activation_of_missing_user(self):
+        """Test activation missing user."""
+        User = get_user_model()
+        uid = 'joelpatrick'
+        kwargs = {
+            "uid": urlsafe_base64_encode(force_bytes(uid)).decode('utf-8')
+        }
+        activation_url = reverse('activation_link',
+                                 kwargs=kwargs)
+        response = self.client.get(activation_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_activation_link_invalid(self):
         """Test user registration activation link is invalid."""
         User = get_user_model()

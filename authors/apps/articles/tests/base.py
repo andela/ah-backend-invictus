@@ -72,7 +72,21 @@ class BaseTestCase(APITestCase):
             "description": "he wows the kids",
             "body": "Fresh kid is a 5 year musician who has been on map.",
             "author": self.user.username,
+            "tagList": ['joel']
+        }
+        self.article_data_no_tags = {
+            "title": "Fresh kid wonders on stage at lugogo",
+            "description": "he wows the kids",
+            "body": "Fresh kid is a 5 year musician who has been on map.",
+            "author": self.user.username,
             "tagList": []
+        }
+        self.article_data_new_tags = {
+            "title": "Fresh kid wonders on stage at lugogo",
+            "description": "he wows the kids",
+            "body": "Fresh kid is a 5 year musician who has been on map.",
+            "author": self.user.username,
+            "tagList": ['patrick', 'mugaya']
         }
         self.create_article_with_blank_title = {
             "title": "",

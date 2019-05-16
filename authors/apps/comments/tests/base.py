@@ -86,6 +86,13 @@ class BaseTestCase(APITestCase):
                 "body": "His name was my name too...XYZ"
             }
         }
+        self.comment4 = {
+            "comment": {
+                "body": "His name was my name too...XYZ",
+                "first_index": 1,
+                "last_index": 0
+            }
+        }
         self.comment_text = {
             "comment": {
                 "body": "This is sample text.",

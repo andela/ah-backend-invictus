@@ -21,6 +21,13 @@ class TestLikeCommment(BaseTestCase):
                                     HTTP_AUTHORIZATION=self.auth_header, format="json")
         self.assertEqual(response1.status_code, 403)
 
+    def test_user_to_like_missing_comment(self):
+        """Test liking a comment that does not exist."""
+        url = reverse('like_comment', kwargs={'article_id':1, 'comment_id':0})
+        response1 = self.client.post(url,
+                                    HTTP_AUTHORIZATION=self.auth_header, format="json")
+        self.assertEqual(response1.status_code, 404)
+
     def test_user_liking_your_own_comment(self):
         """Test liking your own comment."""
         url = reverse('comment_list', kwargs={'article_id': 1})

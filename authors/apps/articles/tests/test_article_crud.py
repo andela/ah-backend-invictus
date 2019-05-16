@@ -96,9 +96,37 @@ class ArticleCrudTest(BaseTestCase):
         response = self.client.post(
             url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
         article_id = response.data['article']['id']
-        url = '/api/articles/{}/'.format(article_id)
+        url = '/api/articles/{}/retrieve/'.format(article_id)
         response = self.client.get(
             url, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_article(self):
+        """
+        Method test for updating one article
+        """
+        url = reverse('articles-list-create')
+        response = self.client.post(
+            url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        article_id = response.data['article']['id']
+        url = '/api/articles/{}/'.format(article_id)
+        self.client.put(
+            url, self.article_data_no_tags, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        response = self.client.put(
+            url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_article_new_tags(self):
+        """
+        Method test for updating one article
+        """
+        url = reverse('articles-list-create')
+        response = self.client.post(
+            url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        article_id = response.data['article']['id']
+        url = '/api/articles/{}/'.format(article_id)
+        response = self.client.put(
+            url, self.article_data_new_tags, HTTP_AUTHORIZATION=self.auth_header, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_no_permision_to_update_article(self):

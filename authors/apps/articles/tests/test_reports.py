@@ -24,6 +24,15 @@ class ReportTest(BaseTestCase):
             url, self.report, HTTP_AUTHORIZATION=self.auth_header, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_report_missing_article(self):
+        """
+        Method tests the status on reporting a missing article
+        """
+        url = '/api/articles/0/report/'
+        response = self.client.post(
+            url, self.report, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_user_report_article_message(self):
         """
         Method tests the message when a report is successfull

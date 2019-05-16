@@ -41,6 +41,14 @@ class CommentTestCase(BaseTestCase):
                                     format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_comment_highlighting_with_bigger_first_index(self):
+        """Test comment highlighting with bigger 1st index."""
+        url = reverse('comment_list', kwargs={'article_id': 1})
+        response = self.client.post(url, self.comment4,
+                                    HTTP_AUTHORIZATION=self.auth_header,
+                                    format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_post_a_comment_article_not_found(self):
         """Test post a comment on article not found."""
         url = reverse('comment_list', kwargs={'article_id': 1000})

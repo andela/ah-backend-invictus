@@ -24,6 +24,32 @@ class LikesTest(BaseTestCase):
             url, HTTP_AUTHORIZATION=self.auth_header, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_user_like_article_after_revoke(self):
+        """
+        Method tests the status on like article after revoke
+        """
+        url = reverse('articles-list-create')
+        response = self.client.post(
+            url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        article_id = response.data['article']['id']
+        url = '/api/articles/{}/like/'.format(article_id)
+        self.client.post(
+            url, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        self.client.post(
+            url, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        response = self.client.post(
+            url, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_like_article_that_does_not_exist(self):
+        """
+        Method tests like article that does not exist
+        """
+        url = '/api/articles/0/like/'
+        response = self.client.post(
+            url, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_user_like_article_message(self):
         """
         Method tests liking the article response message
@@ -82,6 +108,15 @@ class LikesTest(BaseTestCase):
             url, HTTP_AUTHORIZATION=self.auth_header, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_dislike_missing_article(self):
+        """
+        test disliking missing article
+        """
+        url = '/api/articles/0/dislike/'
+        response = self.client.post(
+            url, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_user_dislike_article_message(self):
         """
         Method tests disliking the article response message
@@ -91,6 +126,24 @@ class LikesTest(BaseTestCase):
             url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
         article_id = response.data['article']['id']
         url = '/api/articles/{}/dislike/'.format(article_id)
+        response = self.client.post(
+            url, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        self.assertEqual(
+            response.data['success'], "You have successfully disliked this article.")
+
+    def test_user_dislike_revoked_article(self):
+        """
+        Method tests disliking the article after revoke
+        """
+        url = reverse('articles-list-create')
+        response = self.client.post(
+            url, self.create_article_data, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        article_id = response.data['article']['id']
+        url = '/api/articles/{}/dislike/'.format(article_id)
+        self.client.post(
+            url, HTTP_AUTHORIZATION=self.auth_header, format="json")
+        self.client.post(
+            url, HTTP_AUTHORIZATION=self.auth_header, format="json")
         response = self.client.post(
             url, HTTP_AUTHORIZATION=self.auth_header, format="json")
         self.assertEqual(

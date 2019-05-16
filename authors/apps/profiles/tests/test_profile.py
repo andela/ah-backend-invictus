@@ -55,9 +55,10 @@ class ProfileTestCase(BaseTestCase):
         response = self.client.post(login_url, self.data2, format="json")
         token = response.data['token']
         auth_header = 'Bearer {}'.format(token)
-        url = reverse('update_profile', kwargs={'username': 'test12345'})
+        url = reverse('update_profile', kwargs={'username': 'test1'})
 
-        response = self.client.put(url, self.profile2, format="json")
+        response = self.client.put(url, self.profile2,
+                                   HTTP_AUTHORIZATION=auth_header, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_firstname_in_profile_returns_string(self):

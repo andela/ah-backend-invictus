@@ -50,12 +50,23 @@ class TestRateArticle(BaseTestCase):
     def test_get_article_average(self):
         """tests getting article average"""
         url = reverse('rating', kwargs={"article_id": 1})
+        self.client.post(url, HTTP_AUTHORIZATION=self.joel_auth_header1,
+                         data={"rating": 3},
+                         format="json")
         response = self.client.get(url,
                                    HTTP_AUTHORIZATION=self.joel_auth_header1,
                                    format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_get_average_rating_that_doestnot_exist(self):
+    def test_get_articles_average_missing_rating(self):
+        """tests getting article average"""
+        url = reverse('rating', kwargs={"article_id": 1})
+        response = self.client.get(url,
+                                   HTTP_AUTHORIZATION=self.joel_auth_header1,
+                                   format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_get_average_rating_for_missing_article(self):
         """tests getting average of article that doesnot exist"""
         url = reverse('rating', kwargs={"article_id": 4})
         response = self.client.get(url,
