@@ -51,22 +51,18 @@ class CommentTestCase(BaseTestCase):
 
     def test_get_a_comment(self):
         """Test get a single comment."""
-        # post an article
         url = reverse('comment_list', kwargs={'article_id': 1})
         self.client.post(url, self.comment,
                          HTTP_AUTHORIZATION=self.auth_header, format="json")
-        # get a single article
         url = reverse('comment_detail', kwargs={'article_id': 1, 'pk': 1})
         response = self.client.get(url, HTTP_AUTHORIZATION=self.auth_header)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_a_comment_on_article_not_found(self):
         """Test get a single comment on a non existinng article."""
-        # post an article
         url = reverse('comment_list', kwargs={'article_id': 1})
         self.client.post(url, self.comment,
                          HTTP_AUTHORIZATION=self.auth_header, format="json")
-        # get a single article
         url = reverse('comment_detail', kwargs={'article_id': 1000, 'pk': 1})
         response = self.client.get(url, HTTP_AUTHORIZATION=self.auth_header)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -74,11 +70,9 @@ class CommentTestCase(BaseTestCase):
 
     def test_get_a_comment_not_found(self):
         """Test get a single comment on a non existinng article."""
-        # post an article
         post_url = reverse('comment_list', kwargs={'article_id': 1})
         self.client.post(post_url, self.comment,
                          HTTP_AUTHORIZATION=self.auth_header, format="json")
-        # get a single comment
         url = reverse('comment_detail', kwargs={'article_id': 1, 'pk': 1000})
         response = self.client.get(url, HTTP_AUTHORIZATION=self.auth_header)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -86,7 +80,6 @@ class CommentTestCase(BaseTestCase):
 
     def test_update_a_comment(self):
         """Test update a single comment."""
-        # post an article
         post_url = reverse('comment_list', kwargs={'article_id': 1})
         response = self.client.post(post_url, self.comment,
                                     HTTP_AUTHORIZATION=self.auth_header,
@@ -246,7 +239,7 @@ class CommentTestCase(BaseTestCase):
         response = self.client.post(url, self.comment_text3,
                                     HTTP_AUTHORIZATION=self.auth_header,
                                     format="json")
-        self.assertIn('You should  only highlight within the article body.',
+        self.assertIn('You should only highlight within the article body.',
                       str(response.data))
 
     def test_if_first_index_is_greater_last_index(self):
@@ -256,12 +249,3 @@ class CommentTestCase(BaseTestCase):
                                     HTTP_AUTHORIZATION=self.auth_header,
                                     format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_iff_first_index_is_greater_last_index(self):
-        """Test whether first index is greater than last index."""
-        url = reverse('comment_list', kwargs={'article_id': 1})
-        response = self.client.post(url, self.comment_text4,
-                                    HTTP_AUTHORIZATION=self.auth_header,
-                                    format="json")
-        self.assertIn('You should  only highlight within the article body.',
-                      str(response.data))
