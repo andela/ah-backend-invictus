@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework import exceptions, status
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -25,9 +25,10 @@ from .serializers import (LoginSerializer, RegistrationSerializer,
                           ResetPasswordTokenSerializer,
                           SocialAuthenticationSerializer,
                           TwitterAuthenticationSerializer,
-                          UserSerializer)
+                          UserSerializer,)
 from .social_auth import SocialLoginSignUp
 from .token import generate_token
+from authors.apps.articles.models import Article, Like_Dislike
 
 
 class RegistrationAPIView(APIView):
@@ -185,14 +186,16 @@ class PasswordReset(APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = User.objects.filter(email = request.data['email']).distinct().first()
+        user = User.objects.filter(
+            email=request.data['email']).distinct().first()
 
         token = generate_token()
-        serializer.save(user = user, token = token)
+        serializer.save(user=user, token=token)
 
         current_site = get_current_site(request)
 
-        activation_link = '{}/api/reset_password/{}/'.format(current_site, token)
+        activation_link = '{}/api/reset_password/{}/'.format(
+            current_site, token)
 
         subject = 'Reset account password'
         message = 'Click the link below to reset your password.\n{}'.format(
@@ -223,11 +226,13 @@ class PasswordResetToken(APIView):
     def post(self, request, token):
         # reset password
 
-        ResetPasswordToken_obj = ResetPasswordToken.objects.filter(token=token).distinct()
+        ResetPasswordToken_obj = ResetPasswordToken.objects.filter(
+            token=token).distinct()
 
         if ResetPasswordToken_obj.exists():
             ResetPasswordToken_obj = ResetPasswordToken_obj.first()
-            expiry_date = ResetPasswordToken_obj.created_at + timedelta(hours=24)
+            expiry_date = ResetPasswordToken_obj.created_at + \
+                timedelta(hours=24)
         else:
             ResetPasswordToken_obj = None
         if not ResetPasswordToken_obj or timezone.now() > expiry_date:

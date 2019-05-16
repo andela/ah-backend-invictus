@@ -31,3 +31,10 @@ class BaseTestCase(APITestCase):
         self.login_url, self.data.login_data_admin, format='json')
         admin_test_token = self.admin_login_response.data['token']
         self.auth_header = 'Bearer {}'.format(admin_test_token)
+        self.create_article_data = {
+            "title": "Fresh kid wonders on stage at lugogo",
+            "description": "he wows the kids",
+            "body": "Fresh kid is a 5 year musician who has been on map.",
+            "author": self.user.username,
+            "tagList": []
+        }

@@ -12,10 +12,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
     # Ensure passwords are at least 8 characters long, no longer than 128
     # characters, and can not be read by the client.
     # ensures that password is required and not blank
-    #username should not contain trailing and leading white spaces
+    # username should not contain trailing and leading white spaces
     email = serializers.EmailField()
     username = serializers.CharField(
-        trim_whitespace = True 
+        trim_whitespace=True
     )
     password = serializers.CharField(
         max_length=16,
@@ -43,9 +43,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
                 "Password should not include white spaces")
         return password
 
-
     def validate_username(self, username):
-        """ validates username"""  
+        """ validates username"""
         exist_username = User.objects.filter(username=username)
         if exist_username.exists():
             raise serializers.ValidationError(
@@ -69,7 +68,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "email provided already exists")
         return email
-
 
     # The client should not be able to send a token along with a registration
     # request. Making `token` read-only handles that for us.
@@ -205,6 +203,7 @@ class UserSerializer(serializers.ModelSerializer):
 
         return instance
 
+
 class ResetPasswordTokenSerializer(serializers.ModelSerializer):
     """Handles serialization and deserialization of ResetPasswordToken class objects."""
     email = serializers.EmailField()
@@ -214,20 +213,20 @@ class ResetPasswordTokenSerializer(serializers.ModelSerializer):
         fields = ["email", ]
 
     def validate(self, data):
-        #Validate the email
+        # Validate the email
         email = data.get('email', None)
         if email is None:
             raise serializers.ValidationError(
                 'An email address is required to reset password'
             )
-        
-        #check that user exists and is active
+
+        # check that user exists and is active
         user = User.objects.filter(email=email).distinct()
         if not user.exists() or not user.first().is_active:
             raise serializers.ValidationError(
                 "No active account with provided email.")
         return data
-        
+
 
 class ResetPasswordSerializer(serializers.ModelSerializer):
     """serialization of user data."""
@@ -249,7 +248,7 @@ class ResetPasswordSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Password should atleast be 8 characters.")
         if not re.search(r'[0-9]', password) or not re.search(r'[a-zA-Z]',
-                password) or not re.search(r'[!?@#$%^&*.]', password):
+                                                              password) or not re.search(r'[!?@#$%^&*.]', password):
             raise serializers.ValidationError(
                 "Password should include numbers and alphabets and one special character")
         if re.search(r'[\s]', password):

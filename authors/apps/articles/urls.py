@@ -1,10 +1,11 @@
 from django.urls import path
 from .views import (UpdateDestroyArticle, RetrieveArticle,
                     Like, Dislike, ListArticles, CreateArticles,
-                    Reports, ReportView, )
+                    Reports, ReportView, AddRead, ReadingStats)
 
 
 urlpatterns = [
+    path('author/readingstats/', ReadingStats.as_view(), name='reading_stats'),
     path('articles/', CreateArticles.as_view(),
          name="articles-list-create"),
     path('articles/all/', ListArticles.as_view(), name="list_articles"),
@@ -18,4 +19,5 @@ urlpatterns = [
     path('articles/<article_id>/report/',
          Reports.as_view(), name="report-article"),
     path('articles/reports/', ReportView.as_view(), name="view-reports"),
+    path('articles/reads/', AddRead.as_view(), name="add_user_read"),
 ]
