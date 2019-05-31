@@ -75,6 +75,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
+    'django.middleware.common.BrokenLinkEmailsMiddleware',
 ]
 
 ROOT_URLCONF = 'authors.urls'
@@ -216,7 +217,13 @@ EMAIL_USE_TLS = True
 
 TWITTER_CONSUMER_KEY = os.getenv('TWITTER_CONSUMER_KEY')
 TWITTER_CONSUMER_SECRET = os.getenv('TWITTER_CONSUMER_SECRET')
+CORS_ORIGIN_ALLOW_ALL = True
 
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000',
+    'http://localhost:8000',
+    'http://localhost:8080',
+]
 #instantiate pusher with keys got from the .env file
 pusher = Pusher(
     app_id=os.getenv('APP_ID'),
