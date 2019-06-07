@@ -192,10 +192,8 @@ class PasswordReset(APIView):
         token = generate_token()
         serializer.save(user=user, token=token)
 
-        current_site = get_current_site(request)
-
         activation_link = '{}/api/reset_password/{}/'.format(
-            current_site, token)
+            request.data['url'], token)
 
         subject = 'Reset account password'
         message = 'Click the link below to reset your password.\n{}'.format(
@@ -205,7 +203,7 @@ class PasswordReset(APIView):
         send_mail(subject, message, from_email, [to_email],
                   fail_silently=False)
         response = {
-            "message": "Check your email address for a reset  link."
+            "message": "Check your email-address for a reset-password link."
         }
 
         return Response(response, status=status.HTTP_200_OK)
@@ -237,7 +235,7 @@ class PasswordResetToken(APIView):
             ResetPasswordToken_obj = None
         if not ResetPasswordToken_obj or timezone.now() > expiry_date:
             return Response({
-                "message": "Ivalid link. Regenerate a reset password token"
+                "message": "Ivalid token!"
             }, status=status.HTTP_401_UNAUTHORIZED)
         user = ResetPasswordToken_obj.user
         serializer = self.serializer_class(
@@ -251,7 +249,7 @@ class PasswordResetToken(APIView):
         clear_expired_tokens(now_minus_expiry_time)
 
         return Response({
-            "message": "Password reset successfull."
+            "message": "Password reset was successfull."
         }, status=status.HTTP_200_OK)
 
 

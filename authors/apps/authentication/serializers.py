@@ -224,7 +224,7 @@ class ResetPasswordTokenSerializer(serializers.ModelSerializer):
         user = User.objects.filter(email=email).distinct()
         if not user.exists() or not user.first().is_active:
             raise serializers.ValidationError(
-                "No active account with provided email.")
+                "No active account with provided email was found.")
         return data
 
 
