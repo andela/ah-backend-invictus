@@ -30,7 +30,7 @@ class TestRateArticle(BaseTestCase):
 
     def test_rate_article_that_does_not_exist(self):
         """tests rate an article that does not exist"""
-        url = reverse('rating', kwargs={"article_id": 4})
+        url = reverse('ratings', kwargs={"article_id": 4})
         response = self.client.get(url,
                                    HTTP_AUTHORIZATION=self.joel_auth_header1,
                                    format="json")
@@ -49,7 +49,7 @@ class TestRateArticle(BaseTestCase):
 
     def test_get_article_average(self):
         """tests getting article average"""
-        url = reverse('rating', kwargs={"article_id": 1})
+        url = reverse('ratings', kwargs={"article_id": 1})
         response = self.client.get(url,
                                    HTTP_AUTHORIZATION=self.joel_auth_header1,
                                    format="json")
@@ -57,7 +57,7 @@ class TestRateArticle(BaseTestCase):
 
     def test_get_average_rating_that_doestnot_exist(self):
         """tests getting average of article that doesnot exist"""
-        url = reverse('rating', kwargs={"article_id": 4})
+        url = reverse('ratings', kwargs={"article_id": 4})
         response = self.client.get(url,
                                    HTTP_AUTHORIZATION=self.joel_auth_header1,
                                    format="json")
