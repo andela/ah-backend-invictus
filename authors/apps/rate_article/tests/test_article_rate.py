@@ -53,7 +53,7 @@ class TestRateArticle(BaseTestCase):
         response = self.client.get(url,
                                    HTTP_AUTHORIZATION=self.joel_auth_header1,
                                    format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_get_average_rating_that_doestnot_exist(self):
         """tests getting average of article that doesnot exist"""
