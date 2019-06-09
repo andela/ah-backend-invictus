@@ -192,8 +192,7 @@ class PasswordReset(APIView):
         token = generate_token()
         serializer.save(user=user, token=token)
 
-        activation_link = '{}/api/reset_password/{}/'.format(
-            request.data['url'], token)
+        activation_link = request.data['url'] + token
 
         subject = 'Reset account password'
         message = 'Click the link below to reset your password.\n{}'.format(
