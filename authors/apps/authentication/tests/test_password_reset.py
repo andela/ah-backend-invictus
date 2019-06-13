@@ -37,7 +37,7 @@ class UserSignUpTestCase(BaseTestCase):
         url = reverse('password_reset_token', kwargs={'token':'ytokengoeshere'})
         response = self.client.post(url, self.reset_new_passwords_data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response.data['message'], 'Ivalid token!')
+        self.assertEqual(response.data['message'], 'Invalid token!')
 
     def test_post_wrong_new_password(self):
         """

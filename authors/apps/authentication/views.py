@@ -234,7 +234,7 @@ class PasswordResetToken(APIView):
             ResetPasswordToken_obj = None
         if not ResetPasswordToken_obj or timezone.now() > expiry_date:
             return Response({
-                "message": "Ivalid token!"
+                "message": "Invalid token!"
             }, status=status.HTTP_401_UNAUTHORIZED)
         user = ResetPasswordToken_obj.user
         serializer = self.serializer_class(
