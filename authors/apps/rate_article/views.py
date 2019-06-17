@@ -57,6 +57,27 @@ class CreateArticleRating(APIView):
             return Response({"rating": serializer.data},
                             status=status.HTTP_201_CREATED)
 
+    def put(self, request, **kwargs):
+        data = {}
+        data['rating'] = request.data.get('rating')
+        data['user'] = request.user.username
+        article = self.get_object(self.kwargs['article_id'])
+        serializer = RateSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(article=article)
+
+class GetArticleRating(APIView):
+    """ Get average article rating """
+    serializer_class = RateSerializer
+    authentication_classes = ()
+    queryset = Rate.objects.all()
+
+    def get_object(self, article_id):
+        try:
+            return Article.objects.get(id=article_id)
+        except Article.DoesNotExist:
+            raise NotFound("article does not exists")
+
     def get(self, request, **kwargs):
         """ gets average of a single article rating"""
         article = self.get_object(article_id=kwargs['article_id'])
@@ -68,12 +89,3 @@ class CreateArticleRating(APIView):
                             status=status.HTTP_200_OK)
         return Response({"error": "Rating for article doesnot exists"},
                             status=status.HTTP_400_BAD_REQUEST)
-
-    def put(self, request, **kwargs):
-        data = {}
-        data['rating'] = request.data.get('rating')
-        data['user'] = request.user.username
-        article = self.get_object(self.kwargs['article_id'])
-        serializer = RateSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(article=article)
