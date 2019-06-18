@@ -55,8 +55,7 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     def get_social_links(self, insitance):
         links = dict()
-        article_url = self.context['request'].build_absolute_uri(
-            reverse("article-get", kwargs={'pk':insitance.pk}))
+        article_url = f"https://staging-f-invictus.herokuapp.com/articles/{insitance.pk}"
         article_url_quote = quote(article_url)
         # facebook url
         facebook_url = f"https://www.facebook.com/sharer/sharer.php?u={article_url_quote}"
