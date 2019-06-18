@@ -31,7 +31,6 @@ class ListArticles(generics.ListAPIView):
     serializer_class = ArticleSerializer
     authentication_classes = ()
     renderer_classes = (ArticleJSONRenderer, )
-    pagination_class = ArticlePageNumberPagination
 
     filter_class = ArticleFilter
     filter_backends = (SearchFilter, DjangoFilterBackend, )
