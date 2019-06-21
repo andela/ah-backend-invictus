@@ -128,7 +128,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         try:
             payload = {
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(
-                    seconds=1800),
+                    days=1),
                 'iat': datetime.datetime.utcnow(),
                 'sub': email
             }
