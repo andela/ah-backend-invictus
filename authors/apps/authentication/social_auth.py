@@ -21,11 +21,8 @@ class SocialLoginSignUp:
         try:
             # Authenticate user with email address.
             user = User.objects.get(email=user_info.get('email'))
-            user_dict = {
-                "email": user.email
-            }
+            user_dict = {"email": user.email}
             token = user.encode_auth_token(user_dict)
-            password = User.objects.make_random_password()
             return Response({
                 "email": user.email,
                 "username": user.username,
@@ -34,9 +31,7 @@ class SocialLoginSignUp:
             }, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             # Create user if user does not exist.
-            user_dict = {
-                "email": user_info.get("email")
-            }
+            user_dict = {"email": user_info.get("email")}
             password = User.objects.make_random_password()
             user = User(
                 username=user_info.get('name')+str(uuid.uuid1().int)[:3],
