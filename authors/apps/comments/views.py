@@ -2,9 +2,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import NotFound
 
-from authors.apps.articles.models import Article
 from .models import Comment, Likes
 from .serializers import CommentSerializer, CommentEditHistorySerializer
 from .utils import get_article, get_comment
@@ -19,15 +17,6 @@ class ListCreateComment(APIView):
     permission_classes = (IsAuthenticated, )
     serializer_class = CommentSerializer
 
-    def get_article(self, article_id):
-        """
-        This method returns an article by its id.
-        """
-        try:
-            return Article.objects.get(id=article_id)
-        except Article.DoesNotExist:
-            raise NotFound({"error": "Article not found."})
-
     @swagger_auto_schema(
         operation_description="Add a comment to an article.",
         operation_id="Add a comment to an article.",
@@ -38,7 +27,7 @@ class ListCreateComment(APIView):
         """
         This method adds a comment to a particular article.
         """
-        article = self.get_article(kwargs['article_id'])
+        article = get_article(kwargs['article_id'])
         comment = request.data.get('comment', {})
         comment['article'] = article.id
         first_index = comment.get('first_index', 0)
@@ -49,9 +38,9 @@ class ListCreateComment(APIView):
                     {"Error": "First index and last index must be integers."},
                     status.HTTP_400_BAD_REQUEST)
             if first_index > len(article.body) or last_index > len(article.body):
-                return Response(
-                    {"Error": "You should  only highlight within the article body."},
-                    status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    "Error": "You should only highlight within the article body."
+                }, status.HTTP_400_BAD_REQUEST)
             if int(first_index) > int(last_index):
                 return Response(
                     {"Error": "First index should be less than Last index."},
@@ -70,7 +59,7 @@ class ListCreateComment(APIView):
         """
         This method returns a list of comments on an article.
         """
-        self.get_article(kwargs['article_id'])
+        get_article(kwargs['article_id'])
         queryset = Comment.objects.filter(article=self.kwargs['article_id'])
         serializer = CommentSerializer(queryset, many=True)
         return Response({
@@ -86,39 +75,21 @@ class RetrieveUpdateDeleteComment(APIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 
-    def get_article(self, article_id):
-        """
-        Returns an article by its id.
-        """
-        try:
-            return Article.objects.get(id=article_id)
-        except Article.DoesNotExist:
-            raise NotFound({"error": "Article not found."})
-
-    def get_comment(self, pk):
-        """
-        This method returns a comment by its id.
-        """
-        try:
-            return Comment.objects.get(pk=pk)
-        except Comment.DoesNotExist:
-            raise NotFound({"error": "Comment not found."})
-
-    def get(self, request, pk, article_id, **kwargs):
+    def get(self, request, pk, **kwargs):
         """
         This method returns a single comment.
         """
-        self.get_article(article_id)
-        comment = self.get_comment(pk)
+        get_article(kwargs['article_id'])
+        comment = get_comment(pk)
         serializer = CommentSerializer(comment)
         return Response({"comment": serializer.data})
 
-    def put(self, request, pk, article_id):
+    def put(self, request, pk, **kwargs):
         """
         This method updates a single comment.
         """
-        article = self.get_article(article_id)
-        comment = self.get_comment(pk)
+        article = get_article(kwargs['article_id'])
+        comment = get_comment(pk)
         if comment.author.username == request.user.username:
             data = {}
             data['article'] = article.id
@@ -134,12 +105,12 @@ class RetrieveUpdateDeleteComment(APIView):
             "error": "You do not have permissions to edit this comment."
         }, status=status.HTTP_403_FORBIDDEN)
 
-    def delete(self, request, pk, article_id):
+    def delete(self, request, pk, **kwargs):
         """
         This method deletes a single comment.
         """
-        self.get_article(article_id)
-        comment = self.get_comment(pk)
+        get_article(kwargs['article_id'])
+        comment = get_comment(pk)
         if comment.author.username == request.user.username:
             comment.delete()
             return Response({
@@ -157,46 +128,40 @@ class Like(APIView):
 
     permission_classes = (IsAuthenticated, )
 
-    def get_comment(self, comment_id):
-        """search for a comment by id."""
+    def get_like(self, pk, username):
         try:
-            return Comment.objects.get(id=comment_id)
-        except Comment.DoesNotExist:
-            raise NotFound({"error": "The comment does not exist."})
-
-    def get_like(self, comment_id, username):
-        try:
-            return Likes.objects.get(comment=comment_id,commenter_id=username)
+            return Likes.objects.get(comment=pk, commenter_id=username)
         except Likes.DoesNotExist:
             return None
 
     def get(self, request, **kwargs):
-        """Method to check for your like on a comment"""
-        like = self.get_like(kwargs['comment_id'], request.user.username)
+        """Method to check for your like on a comment."""
+        like = self.get_like(kwargs['pk'], request.user.username)
         if like:
-            return Response({"status":True}, status=status.HTTP_200_OK)
-        return Response({"status":False}, status=status.HTTP_200_OK)
+            return Response({"status": True}, status=status.HTTP_200_OK)
+        return Response({"status": False}, status=status.HTTP_200_OK)
 
     def post(self, request, **kwargs):
-        """ Method to like a specific comment."""
-        comment = self.get_comment(kwargs['comment_id'])
-        my_like = self.get_like(kwargs['comment_id'], request.user.username)
+        """Method to like a specific comment."""
+        comment = get_comment(kwargs['pk'])
+        my_like = self.get_like(kwargs['pk'], request.user.username)
         if comment.author.username == request.user.username:
             return Response({
                 "message": "You can not like your own comment."
             }, status=status.HTTP_403_FORBIDDEN)
         elif not my_like:
             like = Likes(commenter_id=request.user.username,
-                like=1, comment=comment)
+                         like=1, comment=comment)
             like.save()
-            Comment.objects.filter(id=kwargs['comment_id']).update(
+            Comment.objects.filter(id=kwargs['pk']).update(
                 likes_counter=comment.likes_counter + 1)
-            return Response({"success": "You have successfully liked this comment."},
-                            status=status.HTTP_200_OK)
+            return Response({
+                "success": "You have successfully liked this comment."
+            }, status=status.HTTP_200_OK)
         else:
             my_like.delete()
-            Comment.objects.filter(
-                id=kwargs['comment_id']).update(likes_counter=comment.likes_counter - 1)
+            Comment.objects.filter(id=kwargs['pk']).update(
+                                   likes_counter=comment.likes_counter - 1)
             return Response({"message": "Your like has been cancelled"},
                             status=status.HTTP_200_OK)
 

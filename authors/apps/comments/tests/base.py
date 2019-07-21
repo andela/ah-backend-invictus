@@ -121,12 +121,11 @@ class BaseTestCase(APITestCase):
         self.comment_text4 = {
             "comment": {
                 "body": "This is sample text.",
-                "first_index": 200,
-                "last_index": 100,
+                "first_index": 20,
+                "last_index": 10,
                 "highlighted_text": "This is sample text."
             }
         }
-
 
         self.user2 = User.objects.create_user(
             username='test2', email='test2@example.com', password='12345678'
